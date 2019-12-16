@@ -10,13 +10,15 @@
   }
 </style>
 <style>
+  #scanner-container,
+  #gl-canvas,
+  #testCanvas {
+    width: 80vw;
+    height: calc(80vw/16*9);
+  }
 
-#scanner-container,#gl-canvas, #testCanvas{
-  width: 1920px;
-  height: 1080px;
-}
   #scanner-container {
-   
+
     display: block;
     position: relative;
   }
@@ -103,9 +105,16 @@ void main()
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/scandit-sdk@4.x"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/bwip-js@2.x"></script>
+<script src="https://cdn.jsdelivr.net/npm/bwip-js@2.x/lib/symdesc.js"></script>
 
 <script>
+
+
+
+
+
+
   /* https://github.com/Scandit/barcodescanner-sdk-for-web-samples/blob/master/vanilla-samples/code-location/index.html */
 
   // Create the code location canvas element
@@ -142,9 +151,9 @@ void main()
   let scanner;
   ScanditSDK.configure(licenseKey, { engineLocation: engineLocation }).then(() => {
     console.log("ScanditSDK configured")
-    
+
     const scanSettings = new ScanditSDK.ScanSettings({
-      enabledSymbologies: ["ean8", "ean13", "upca", "upce"
+      enabledSymbologies: ["ean8", "ean13", "upca", "upce", "code128", "qr"
       ],
       codeDuplicateFilter: 0,
       maxNumberOfCodesPerFrame: 10
@@ -154,15 +163,30 @@ void main()
 
     }
 
+
+
+
     scanner = new ScanditSDK.Scanner(namedParameters);
-    scanner.on("ready", function () {
+    function refreshImageSettings() {
+
       var sourceCanvas = document.getElementById("gl-canvas")
-          let imageSettings = {
+      let imageSettings = {
         width: sourceCanvas.width,
         height: sourceCanvas.height,
         format: ScanditSDK.ImageSettings.Format.RGBA_8U
       }
+
       scanner.applyImageSettings(imageSettings);
+    }
+
+    window.addEventListener('resize', function () {
+      refreshImageSettings();
+    }
+      , false);
+
+
+    scanner.on("ready", function () {
+      refreshImageSettings();
       console.log("Scanner Ready");
 
       document.getElementById("scanner-container").appendChild(codeLocationCanvasElement);
@@ -192,7 +216,7 @@ void main()
         });
       */ }
 
-      wallImg.src = './barcode.bmp';
+      wallImg.src = './wall.bmp';
     });
   });
 
@@ -208,20 +232,71 @@ void main()
 
 <body>
 
-  <div id="scanner-container" class="scanner">
-    <canvas id="gl-canvas" width="683" height="512">
-      Oops ... your browser doesn't support the HTML5 canvas element
-    </canvas>
-  </div>
-  <!-- <img id="texImage" src="http://ee.cooper.edu/~goldfarb/maze/wall.bmp" crossOrigin="use-credentials" hidden></img> -->
-  <canvas id="testCanvas"  style="border: 2px solid #000;display:none;"></canvas>
+  <div id="params">
+
+    <div id="versions"></div>
+    <table border=0 cellpading=0 cellspacing=0>
+      <tr>
+        <td style="vertical-align:top">
+          <table border=0 cellpading=0 cellspacing=0>
+            <tr>
+              <th>Barcode Type:
+              <td><select id="symbol"></select>
+            <tr>
+              <th>Bar Text:
+              <td><input id="symtext" type="text">
+
+            <tr>
+              <th>Alt Text:
+              <td><input id="symaltx" type="text">
+            <tr>
+              <th>Options:
+              <td><input id="symopts" type="text">
+            <tr>
+              <td>
+              <td>
+                <div id="stats"></div>
+          </table>
+        <td style="padding-left:10mm;vertical-align:top">
+          <table border=0 cellpading=0 cellspacing=5>
+            <tr>
+              <th>Scale X,Y:
+              <td>
+                <input type="number" min=1 max=9 step=1 id="scaleX" value=1>
+                <input type="number" min=1 max=9 step=1 id="scaleY" value=1>
+            <tr>
+              <th>Image Rotation:
+              <td>
+                <label for="rotateN"><input type="radio" name="rotate" value="N" id="rotateN" checked>Normal</label>
+                <label for="rotateR"><input type="radio" name="rotate" value="R" id="rotateR">Right</label>
+                <label for="rotateL"><input type="radio" name="rotate" value="L" id="rotateL">Left</label>
+                <label for="rotateI"><input type="radio" name="rotate" value="I" id="rotateI">Invert</label>
+            <tr>
+              <td>
+              <td><button style="margin-top:1ex" id="renderBarcode">Show Barcode</button>
+          </table>
+      <tr>
+        <td><br>
+    </table>
 
 
-  <canvas id="staticCanvas" width="261" height="165" style="border: 2px solid #000;"></canvas>
-  <input type="button" onclick="javascript:takeScreenshot();" value="Screenshot">
+    <canvas id="staticCanvas" width="261" height="165" style="border: 2px solid #000;"></canvas>
 
-  <input readonly size="5" id="numberOfCodesPerFrame">
-  <input readonly size="5" id="fps">
+    <input type="button" onclick="javascript:swapTexture();" value="swapTexture">
+
+    <input readonly size="5" id="numberOfCodesPerFrame">
+    <input readonly size="5" id="fps">
+    <canvas id="barcodeCanvas" width=1 height=1 style="border:1px solid #fff;visibility:hidden"></canvas>
+
+    <div id="output" style="white-space:pre"></div>
+    <div id="scanner-container" class="scanner">
+      <canvas id="gl-canvas" width="683" height="512">
+        Oops ... your browser doesn't support the HTML5 canvas element
+      </canvas>
+    </div>
+    <!-- <img id="texImage" src="http://ee.cooper.edu/~goldfarb/maze/wall.bmp" crossOrigin="use-credentials" hidden></img> -->
+    <!-- <canvas id="testCanvas" style="border: 2px solid #000;display:none;"></canvas> -->
+
 </body>
 
 <script>
@@ -230,9 +305,7 @@ void main()
   var sourceCanvas = document.getElementById("gl-canvas")
   var numberOfCodesPerFrameElement = document.getElementById("numberOfCodesPerFrame")
 
-  window.barcodeScannerBusy = function () {
-    return scanner.isBusyProcessing()
-  }
+
   window.scanBarcode = function () {
 
 
@@ -245,9 +318,9 @@ void main()
 
       const w = sourceCanvas.width, h = sourceCanvas.height;
       var inputImageDataRotated = new Uint8ClampedArray(gl.drawingBufferWidth * gl.drawingBufferHeight * 4);
-      Array.from({ length: h }, 
-                function(val, i) { return inputImageData.slice(i * w * 4, (i + 1) * w * 4)})
-        .forEach(function (val, i) {return  inputImageDataRotated.set(val, (h - i - 1) * w * 4)});
+      Array.from({ length: h },
+        function (val, i) { return inputImageData.slice(i * w * 4, (i + 1) * w * 4) })
+        .forEach(function (val, i) { return inputImageDataRotated.set(val, (h - i - 1) * w * 4) });
 
 
       scanner.processImage(inputImageDataRotated).then(scanResult => {
@@ -259,7 +332,7 @@ void main()
         // Adjust code location canvas context size based on currently active camera resolution
         codeLocationCanvasContext.canvas.width = scanResult.imageSettings.width;
         codeLocationCanvasContext.canvas.height = scanResult.imageSettings.height;
-     //   codeLocationCanvasContext.translate(100,100);  // we scanned upside down
+        //   codeLocationCanvasContext.translate(100,100);  // we scanned upside down
         // Mirror code location canvas if the camera image is also mirrored
 
         // Draw new code locations
@@ -275,7 +348,52 @@ void main()
   }
 
 
+  function swapTexture() {
 
+
+    try {
+      let renderCanvas = document.getElementById('barcodeCanvas')
+      let renderCtx = renderCanvas.getContext("2d");
+      imageData = renderCtx.getImageData(0, 0, renderCanvas.width, renderCanvas.height);
+
+
+      let wallImg = new Image();
+      let staticCanvas = document.getElementById("staticCanvas");
+      function nextPowerOf2(n) { // https://stackoverflow.com/questions/26965171/fast-nearest-power-of-2-in-javascript
+        return 1 << 32 - Math.clz32(n);
+      }
+
+      let textureWidth = nextPowerOf2(Math.max(renderCanvas.width * 1.5, renderCanvas.height * 1.5));
+      let textureHeight = textureWidth;
+      wallImg.onload = function () {
+        staticCanvas.width = textureWidth
+        staticCanvas.height = textureHeight
+        let staticCtx = staticCanvas.getContext("2d");
+
+
+        staticCtx.drawImage(wallImg, 0, 0, textureWidth, textureHeight);
+        staticCtx.putImageData(imageData, (textureWidth - renderCanvas.width) / 2, (textureHeight - renderCanvas.height) / 2);
+
+        const wallTexture = gl.createTexture();
+        const TextureData = staticCtx.getImageData(0, 0, textureWidth, textureHeight);
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, wallTexture);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, TextureData);
+        gl.generateMipmap(gl.TEXTURE_2D);
+
+      }
+
+      wallImg.src = './pic.bmp';
+
+
+
+
+    } catch (e) {
+      // `e` may be a string or Error object
+    }
+
+
+  }
   function takeScreenshot() {
 
 
@@ -319,6 +437,176 @@ void main()
 
 
 
+  }
+
+
+
+
+  window.addEventListener('load', function () {
+    var lastSymbol, lastBarText, lastAltText, lastOptions, lastRotate, lastScaleX, lastScaleY;
+    try {
+      lastSymbol = localStorage.getItem('bwipjsLastSymbol');
+      lastBarText = localStorage.getItem('bwipjsLastBarText');
+      lastAltText = localStorage.getItem('bwipjsLastAltText');
+      lastOptions = localStorage.getItem('bwipjsLastOptions');
+      lastRotate = localStorage.getItem('bwipjsLastRotate');
+      lastScaleX = +localStorage.getItem('bwipjsLastScaleX');
+      lastScaleY = +localStorage.getItem('bwipjsLastScaleY');
+    } catch (e) {
+    }
+
+    // Set up the select list of barcode types
+    var sel = document.getElementById('symbol');
+    var opts = [];
+    for (var id in symdesc) {
+      opts.push(symdesc[id]);
+    }
+    opts.sort(function (a, b) { return a.desc < b.desc ? -1 : 1 });
+    for (var i = 0, l = opts.length; i < l; i++) {
+      var elt = document.createElement('option');
+      elt.textContent = opts[i].desc;
+      elt.value = opts[i].sym;
+      sel.appendChild(elt);
+    }
+
+    sel.addEventListener('change', function (ev) {
+      var desc = symdesc[sel.value];
+      if (desc) {
+        document.getElementById('symtext').value = desc.text;
+        document.getElementById('symopts').value = desc.opts;
+      } else {
+        document.getElementById('symtext').value = '';
+        document.getElementById('symopts').value = '';
+      }
+      document.getElementById('symaltx').value = '';
+      document.getElementById('stats').textContent = '';
+
+    });
+
+    if (lastSymbol) {
+      sel.value = lastSymbol;
+    } else {
+      sel.selectedIndex = 0;
+    }
+    var evt = document.createEvent("HTMLEvents");
+    evt.initEvent("change", false, true);
+    sel.dispatchEvent(evt);
+
+    if (lastBarText) {
+      document.getElementById('symtext').value = lastBarText;
+      document.getElementById('symaltx').value = lastAltText;
+      document.getElementById('symopts').value = lastOptions;
+    }
+    if (lastScaleX && lastScaleY) {
+      document.getElementById('scaleX').value = lastScaleX;
+      document.getElementById('scaleY').value = lastScaleY;
+    }
+    if (lastRotate) {
+      document.getElementById('rotate' + lastRotate).checked = true;
+    }
+
+    document.getElementById('scaleX').addEventListener('change', function (ev) {
+      document.getElementById('scaleY').value = ev.target.value;
+    });
+    document.getElementById('renderBarcode').addEventListener('click', renderBarcode);
+
+    // Allow Enter to render
+    document.getElementById('params').addEventListener('keypress', function (ev) {
+      if (ev.which == 13) {
+        renderBarcode();
+        ev.stopPropagation();
+        ev.preventDefault();
+        return false;
+      }
+    });
+
+    document.getElementById('versions').textContent =
+      'bwip-js ' + bwipjs.VERSION + ' / BWIPP ' + bwipjs.BWIPP.VERSION;
+  });
+
+
+
+  function renderBarcode() {
+    var elt = symdesc[document.getElementById('symbol').value];
+    var text = document.getElementById('symtext').value.trim();
+    var alttext = document.getElementById('symaltx').value.trim();
+    var options = document.getElementById('symopts').value.trim();
+    var rotate = document.querySelector('input[name="rotate"]:checked').value;
+    var scaleX = +document.getElementById('scaleX').value || 2;
+    var scaleY = +document.getElementById('scaleY').value || 2;
+
+    try {
+      localStorage.setItem('bwipjsLastSymbol', elt.sym);
+      localStorage.setItem('bwipjsLastBarText', text);
+      localStorage.setItem('bwipjsLastAltText', alttext);
+      localStorage.setItem('bwipjsLastOptions', options);
+      localStorage.setItem('bwipjsLastScaleX', scaleX);
+      localStorage.setItem('bwipjsLastScaleY', scaleY);
+      localStorage.setItem('bwipjsLastRotate', rotate);
+    } catch (e) {
+    }
+
+    // Clear the page
+    document.getElementById('output').value = '';
+    document.getElementById('stats').value = '';
+    document.getElementById('output').textContent = '';
+
+    var canvas = document.getElementById('barcodeCanvas');
+    canvas.height = 1;
+    canvas.width = 1;
+    canvas.style.visibility = 'hidden';
+
+    // Convert the options to an object.
+    let opts = {
+      backgroundcolor: 'FFFFFF'
+    };
+    let aopts = options.split(' ');
+    for (let i = 0; i < aopts.length; i++) {
+      if (!aopts[i]) {
+        continue;
+      }
+      var eq = aopts[i].indexOf('=');
+      if (eq == -1) {
+        opts[aopts[i]] = true;
+      } else {
+        opts[aopts[i].substr(0, eq)] = aopts[i].substr(eq + 1);
+      }
+    }
+
+    // Finish up the options
+    opts.text = text;
+    opts.bcid = elt.sym;
+    opts.scaleX = 1// scaleX;
+    opts.scaleY = 1// scaleY;
+    opts.rotate = rotate;
+    if (alttext) {
+      opts.alttext = alttext;
+    }
+
+    // Draw the bar code to the canvas
+    try {
+      let ts0 = new Date;
+      bwipjs.toCanvas(canvas, opts);
+      show(ts0, new Date);
+    } catch (e) {
+      // Watch for BWIPP generated raiseerror's.
+      var msg = ('' + e).trim();
+      if (msg.indexOf("bwipp.") >= 0) {
+        document.getElementById('output').textContent = msg;
+      } else if (e.stack) {
+        // GC includes the message in the stack.  FF does not.
+        document.getElementById('output').textContent =
+          (e.stack.indexOf(msg) == -1 ? msg + '\n' : '') + e.stack;
+      } else {
+        document.getElementById('output').textContent = msg;
+      }
+      return;
+    }
+
+    function show(ts0, ts1) {
+      canvas.style.visibility = 'visible';
+      document.getElementById('stats').textContent = 'Rendered in ' + (ts1 - ts0) + ' msecs.';
+    }
   }
 </script>
 

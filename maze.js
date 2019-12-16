@@ -7,7 +7,7 @@ var lastLoop = new Date();
 //EDITABLE CONSTANTS
 const MzX = 10; //X dimension of Maze
 const MzY = 10; //Y dimension of Maze
-var PICNUM = 20; //number of picture walls
+var PICNUM = 100; //number of picture walls
 var POLYNUM = 6; //number of polyhedra
 var OPENNUM = 3; //number of floating opengl's
 
@@ -124,12 +124,24 @@ var polyind = [
 	[1, 11, 7, 1, 7, 6, 1, 6, 10, 1, 10, 3, 1, 3, 11, 4, 8, 0, 5, 4, 0, 9, 5, 0, 2, 9, 0, 8, 2, 0, 11, 9, 7, 7, 2, 6, 6, 8, 10, 10, 4, 3, 3, 5, 11, 4, 10, 8, 5, 3, 4, 9, 11, 5, 2, 7, 9, 8, 6, 2],
 	[14, 9, 8, 14, 8, 13, 14, 13, 0, 1, 5, 11, 1, 11, 10, 1, 10, 4, 4, 10, 6, 4, 6, 2, 4, 2, 18, 10, 11, 7, 10, 7, 15, 10, 15, 6, 11, 5, 19, 11, 19, 3, 11, 3, 7, 5, 1, 12, 5, 12, 17, 5, 17, 19, 1, 4, 18, 1, 18, 16, 1, 16, 12, 3, 19, 17, 3, 17, 9, 3, 9, 14, 17, 12, 16, 17, 16, 8, 17, 8, 9, 16, 18, 2, 16, 2, 13, 16, 13, 8, 2, 6, 15, 2, 15, 0, 2, 0, 13, 15, 7, 3, 15, 3, 14, 15, 14, 0]]
 
-function resizeCanvas() {
-	canvas.width = 1920;
-	canvas.height = 1080;
+function resizeCanvas(canvas, ctx) {
+/*	canvas.width = 1920;
+	canvas.height = 1080;*/
 
-	gl.viewport(0, 0, canvas.width, canvas.height);
-	aspect = canvas.width / canvas.height;
+
+	 // Get the device pixel ratio, falling back to 1.
+	 var dpr = window.devicePixelRatio || 1;
+	 console.log("Device Pixel Ratio: "+dpr)
+	 // Get the size of the canvas in CSS pixels.
+	 var rect = canvas.getBoundingClientRect();
+	 // Give the canvas pixel dimensions of their CSS
+	 // size * the device pixel ratio.
+	 canvas.width = rect.width * dpr;
+	 canvas.height = rect.height * dpr;
+
+	ctx.viewport(0, 0, canvas.width, canvas.height);
+
+	return canvas.width / canvas.height;
 }
 
 
@@ -141,8 +153,10 @@ window.onload = function () {
 	gl = WebGLUtils.setupWebGL(canvas, { preserveDrawingBuffer: true });
 	if (!gl) { alert("WebGL isn't available"); }
 
-	window.addEventListener('resize', resizeCanvas, false);
-	resizeCanvas();
+	window.addEventListener('resize', function() {
+		aspect = resizeCanvas(canvas, gl);}
+		, false);
+	aspect = resizeCanvas(canvas, gl);
 
 	gl.clearColor(0, 0, 0, 1.0);
 
@@ -184,19 +198,7 @@ window.onload = function () {
 		const wallTexture = gl.createTexture();
 		gl.activeTexture(gl.TEXTURE0);
 		gl.bindTexture(gl.TEXTURE_2D, wallTexture);
-
-		var ext = (
-			gl.getExtension('EXT_texture_filter_anisotropic') ||
-			gl.getExtension('MOZ_EXT_texture_filter_anisotropic') ||
-			gl.getExtension('WEBKIT_EXT_texture_filter_anisotropic')
-		);
-		if (ext) {
-			var max = gl.getParameter(ext.MAX_TEXTURE_MAX_ANISOTROPY_EXT);
-			gl.texParameterf(gl.TEXTURE_2D, ext.TEXTURE_MAX_ANISOTROPY_EXT, max);
-		}
-
-		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, wallImg);
-
+	    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, wallImg);
 		gl.generateMipmap(gl.TEXTURE_2D);
 
 		const floorImg = new Image();
@@ -277,7 +279,7 @@ window.onload = function () {
 		};
 		floorImg.src = './floor.bmp';
 	};
-	wallImg.src = './barcode.bmp';
+	wallImg.src = './wall.bmp';
 
 }
 
@@ -484,7 +486,7 @@ var maxFPS = 20;
 var render = function () {
 	var thisLoop = new Date();
 	if (thisLoop - lastLoop < 1000 / maxFPS) {
-		window.setTimeout(render, 10);
+		window.requestAnimationFrame(render)
 		return
 	}
 	var fps = 1000 / (thisLoop - lastLoop);

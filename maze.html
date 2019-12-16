@@ -2,13 +2,36 @@
 <html>
 
 <style>
-html, body {
-  width:  100%;
-  height: 100%;
-  margin: 0;
-}
+  html,
+  body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+  }
 </style>
+<style>
 
+#scanner-container,#gl-canvas, #testCanvas{
+  width: 1920px;
+  height: 1080px;
+}
+  #scanner-container {
+   
+    display: block;
+    position: relative;
+  }
+
+  /* Position the code location canvas directly over the camera video */
+  .code-location-canvas {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    border: 1px solid red;
+  }
+</style>
 <script id="vertex-shader" type="x-shader/x-vertex">
 
 attribute  vec4 vPosition;
@@ -75,17 +98,228 @@ void main()
     else if(i==8) gl_FragColor = fColor;
 	else gl_FragColor = fDrainMatrix*texture2D(wall, fTexCoord);
 }
+
+
 </script>
 
+<script src="https://cdn.jsdelivr.net/npm/scandit-sdk@4.x"></script>
+
+
+<script>
+  /* https://github.com/Scandit/barcodescanner-sdk-for-web-samples/blob/master/vanilla-samples/code-location/index.html */
+
+  // Create the code location canvas element
+  var codeLocationCanvasElement = document.createElement("canvas");
+  codeLocationCanvasElement.classList.add("code-location-canvas");
+  // Set the code location canvas to fit in its parent element in the same way as the camera video inside the barcode picker
+  codeLocationCanvasElement.style.objectFit = codeLocationCanvasElement.dataset.objectFit = ScanditSDK.BarcodePicker.ObjectFit.CONTAIN; // Second value used by "objectFitPolyfill" library
+
+
+  var codeLocationCanvasContext = codeLocationCanvasElement.getContext("2d");
+
+
+  function drawCodeLocation(location) {
+    codeLocationCanvasContext.beginPath();
+    codeLocationCanvasContext.moveTo(location.topLeft.x, location.topLeft.y);
+    codeLocationCanvasContext.lineTo(location.topRight.x, location.topRight.y);
+    codeLocationCanvasContext.lineTo(location.bottomRight.x, location.bottomRight.y);
+    codeLocationCanvasContext.lineTo(location.bottomLeft.x, location.bottomLeft.y);
+    codeLocationCanvasContext.closePath();
+    codeLocationCanvasContext.lineWidth = 3;
+    codeLocationCanvasContext.strokeStyle = "rgba(46, 192, 204, 0.6)";
+    codeLocationCanvasContext.stroke();
+    codeLocationCanvasContext.fillStyle = "rgba(46, 192, 204, 0.3)";
+    codeLocationCanvasContext.fill();
+  }
+
+
+  // Configure the library and activate it with a license key
+  const licenseKey = "ATe90Ax+EtL1CJWafEolgHUqNSa2FUaEM0Jxsj1wgnIcFv0Sgl9q0GNQWe7ySrPT0hZCg5x4ZGcsC4u+s0uILbR/SP07dvx8/ynmOt98JZl/Fz8zCSq5ZxMO41xbKe4ODVGHblZ0KZ0GaEBfx5BznuZ2pihSbuPL6TV1mbMPKk3399c9T4ZKyC3vSEOMZNfh7noBCKkhsUzwMwXPWggQdQI+A7GWYtxVO5Jg6AN5HnpdchY0xxlJzLNYCjCWjjxCGW0VAO2hTpyDQ4z9OvBISUSf3MU8hZezsBMmJzII0JyN9YjJ/40+At9ywYKborV9qABhS3hq4kpoEOEvB041lrJ7M54BrGFziCpnDyjwdwx85GSK57ComqiVYJ7Pd0wkr2UYeeEaB81sAmTZOOGHlV2qYBmatjGE/yjm4lYlhOsBnudZspbUzDKaZv02MthhZgJY1rSIHa1Rjnnc/n3mpxblcnToVWRFT5T2etDZ9PbWIQQWJtGJP/7MciSXwYA9HuLD8TgCR9JyKF1ZyX8s/gpDRVvSJNGScqw6h9dAv4tJ2hZTYPrWv5xlJXNGgyANADTv9IgrgMIKZfQKxPb99YIBHa40JCkp2OUnVY+K9zLGKswmqpn1p4yAiXiPOtt6f4WMyVKgl3HH+NRQst2RYfWsREYw6KocC8tuO2+vbqDpTEXGz+u0Qv0VfyuHkU9YSiMT92BX5LnaYTZ5MXSsBgImJHut9Z3QsoiTffK0gVmkLrtGVumX/px5tc21BizIyx0z981+oujxkf7r2wqx4h0hQ/grJypQMYDo";
+  // Configure the engine location, as explained on http://docs.scandit.com/stable/web/index.html
+  // const engineLocation = "build"; // the folder containing the engine
+  // or, if using a CDN:
+  const engineLocation = "https://cdn.jsdelivr.net/npm/scandit-sdk@4.x/build"
+  let scanner;
+  ScanditSDK.configure(licenseKey, { engineLocation: engineLocation }).then(() => {
+    console.log("ScanditSDK configured")
+    
+    const scanSettings = new ScanditSDK.ScanSettings({
+      enabledSymbologies: ["ean8", "ean13", "upca", "upce"
+      ],
+      codeDuplicateFilter: 0,
+      maxNumberOfCodesPerFrame: 10
+    });
+    var namedParameters = {
+      scanSettings: scanSettings
+
+    }
+
+    scanner = new ScanditSDK.Scanner(namedParameters);
+    scanner.on("ready", function () {
+      var sourceCanvas = document.getElementById("gl-canvas")
+          let imageSettings = {
+        width: sourceCanvas.width,
+        height: sourceCanvas.height,
+        format: ScanditSDK.ImageSettings.Format.RGBA_8U
+      }
+      scanner.applyImageSettings(imageSettings);
+      console.log("Scanner Ready");
+
+      document.getElementById("scanner-container").appendChild(codeLocationCanvasElement);
+      let wallImg = new Image();
+      let staticCanvas = document.getElementById("staticCanvas");
+      wallImg.onload = function () {
+        let ctx = staticCanvas.getContext("2d");
+        let width = wallImg.width;
+        let height = wallImg.height;
+        staticCanvas.width = width;
+        staticCanvas.height = height;
+        ctx.drawImage(wallImg, 0, 0);
+        imageData = ctx.getImageData(0, 0, width, height).data;
+        /* let imageSettings = {
+          width: width,
+          height: height,
+          format: ScanditSDK.ImageSettings.Format.RGBA_8U
+        }
+       scanner.applyImageSettings(imageSettings);
+
+        scanner.processImage(imageData).then(scanResult => {
+          console.log("Initial Scan: " + scanResult.barcodes[0].data);
+
+       
+    
+
+        });
+      */ }
+
+      wallImg.src = './barcode.bmp';
+    });
+  });
+
+
+
+
+
+</script>
 <script type="text/javascript" src="webgl-utils.js"></script>
 <script type="text/javascript" src="initShaders.js"></script>
 <script type="text/javascript" src="MV.js"></script>
 <script type="text/javascript" src="maze.js"></script>
 
 <body>
-<canvas id="gl-canvas" width="683" height="512">
-Oops ... your browser doesn't support the HTML5 canvas element
-</canvas>
-<img id = "texImage" src = "http://ee.cooper.edu/~goldfarb/maze/wall.bmp" crossOrigin="use-credentials" hidden></img>
+
+  <div id="scanner-container" class="scanner">
+    <canvas id="gl-canvas" width="683" height="512">
+      Oops ... your browser doesn't support the HTML5 canvas element
+    </canvas>
+  </div>
+  <!-- <img id="texImage" src="http://ee.cooper.edu/~goldfarb/maze/wall.bmp" crossOrigin="use-credentials" hidden></img> -->
+  <canvas id="testCanvas"  style="border: 2px solid #000;display:none;"></canvas>
+
+
+  <canvas id="staticCanvas" width="261" height="165" style="border: 2px solid #000;"></canvas>
+  <input type="button" onclick="javascript:takeScreenshot();" value="Screenshot">
+
+  <input readonly size="5" id="numberOfCodesPerFrame">
+  <input readonly size="5" id="fps">
 </body>
+
+<script>
+  var destinationCanvas = document.getElementById("testCanvas")
+
+  var sourceCanvas = document.getElementById("gl-canvas")
+  var numberOfCodesPerFrameElement = document.getElementById("numberOfCodesPerFrame")
+
+  window.barcodeScannerBusy = function () {
+    return scanner.isBusyProcessing()
+  }
+  window.scanBarcode = function () {
+
+
+    if (scanner.isReady() && !scanner.isBusyProcessing()) {
+
+
+      var destCtx = sourceCanvas.getContext('webgl');
+      var inputImageData = new Uint8Array(gl.drawingBufferWidth * gl.drawingBufferHeight * 4);
+      destCtx.readPixels(0, 0, sourceCanvas.width, sourceCanvas.height, gl.RGBA, gl.UNSIGNED_BYTE, inputImageData);
+
+      const w = sourceCanvas.width, h = sourceCanvas.height;
+      var inputImageDataRotated = new Uint8ClampedArray(gl.drawingBufferWidth * gl.drawingBufferHeight * 4);
+      Array.from({ length: h }, 
+                function(val, i) { return inputImageData.slice(i * w * 4, (i + 1) * w * 4)})
+        .forEach(function (val, i) {return  inputImageDataRotated.set(val, (h - i - 1) * w * 4)});
+
+
+      scanner.processImage(inputImageDataRotated).then(scanResult => {
+        /*console.log("Scanned frame: ")
+        console.log(scanResult);*/
+
+        // Erase previous code locations
+        codeLocationCanvasContext.clearRect(0, 0, codeLocationCanvasContext.canvas.width, codeLocationCanvasContext.canvas.height);
+        // Adjust code location canvas context size based on currently active camera resolution
+        codeLocationCanvasContext.canvas.width = scanResult.imageSettings.width;
+        codeLocationCanvasContext.canvas.height = scanResult.imageSettings.height;
+     //   codeLocationCanvasContext.translate(100,100);  // we scanned upside down
+        // Mirror code location canvas if the camera image is also mirrored
+
+        // Draw new code locations
+        scanResult.barcodes.forEach(function (barcode) {
+          drawCodeLocation(barcode.location);
+        });
+        numberOfCodesPerFrameElement.value = scanResult.barcodes.length;
+
+
+      })
+    };
+
+  }
+
+
+
+  function takeScreenshot() {
+
+
+    var sourceCanvas = document.getElementById("gl-canvas")
+    var destinationCanvas = document.getElementById("testCanvas")
+
+    //grab the context from your destination canvas
+    var destCtx = destinationCanvas.getContext('2d');
+
+    //call its drawImage() function passing it the source canvas directly
+    destCtx.drawImage(sourceCanvas, 0, 0);
+
+    if (scanner.isReady()) {
+
+      imageData = destCtx.getImageData(0, 0, destinationCanvas.width, destinationCanvas.height).data;
+      let imageSettings = {
+        width: destinationCanvas.width,
+        height: destinationCanvas.height,
+        format: ScanditSDK.ImageSettings.Format.RGBA_8U
+      }
+      scanner.applyImageSettings(imageSettings);
+
+      scanner.processImage(imageData).then(scanResult => {
+        console.log("Scanned frame: ")
+        console.log(scanResult);
+
+        // Erase previous code locations
+        codeLocationCanvasContext.clearRect(0, 0, codeLocationCanvasContext.canvas.width, codeLocationCanvasContext.canvas.height);
+        // Adjust code location canvas context size based on currently active camera resolution
+        codeLocationCanvasContext.canvas.width = scanResult.imageSettings.width;
+        codeLocationCanvasContext.canvas.height = scanResult.imageSettings.height;
+        // Mirror code location canvas if the camera image is also mirrored
+
+        // Draw new code locations
+        scanResult.barcodes.forEach(function (barcode) {
+          drawCodeLocation(barcode.location);
+        });
+      });
+    }
+
+
+
+
+  }
+</script>
+
 </html>

@@ -7,7 +7,7 @@ var lastLoop = new Date();
 //EDITABLE CONSTANTS
 const MzX = 10; //X dimension of Maze
 const MzY = 10; //Y dimension of Maze
-var PICNUM = 100; //number of picture walls
+var PICNUM = 50; //number of picture walls
 var POLYNUM = 6; //number of polyhedra
 var OPENNUM = 3; //number of floating opengl's
 
@@ -144,9 +144,9 @@ function resizeCanvas(canvas, ctx) {
 	return canvas.width / canvas.height;
 }
 
-
-window.onload = function () {
-
+window.mazeRunning = false;
+window.startMaze = function () {
+	window.mazeRunning = true;
 
 	canvas = document.getElementById("gl-canvas");
 
@@ -491,7 +491,7 @@ var render = function () {
 	}
 	var fps = 1000 / (thisLoop - lastLoop);
 	lastLoop = thisLoop;
-	document.getElementById("fps").value = fps.toFixed();
+	document.getElementById("fps").value = "FPS: "+fps.toFixed();
 
 	document.body.onkeyup = function (e) {
 		if (e.keyCode == 32) {

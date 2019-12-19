@@ -23,8 +23,8 @@ Try it out at http://***REMOVED***/scandit3d/.
   - [ ] better textures (not from Win95)
   - [x] default enable lightening (only on space currently)
 - [ ] Status bar
-  - [ ] 🐞aspect ratio of status bar (Doom used [non-square pixels](https://doom.fandom.com/wiki/Aspect_ratio))
-  - [ ] 🐞using AmazDooMLeft for whole logo (instead of just left side)
+  - [x] 🐞aspect ratio of status bar (Doom used [non-square pixels](https://doom.fandom.com/wiki/Aspect_ratio))
+  - [x] 🐞using AmazDooMLeft for whole logo (instead of just left side)
 - [ ] Source Quality
   - [ ] code cleanup
   - [ ] use npm / web bundler to build

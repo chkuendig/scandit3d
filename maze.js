@@ -283,7 +283,7 @@ window.startMaze = function () {
 
 function resetVars() {
 
-	lighting = 0;
+	lighting = true;
 
 	maze = newMaze(MzX, MzY);
 
@@ -494,6 +494,12 @@ var render = function () {
 	document.body.onkeyup = function (e) {
 		if (e.keyCode == 32) {
 			lighting = !lighting;
+			if (!lighting) {
+				printConsole("Lighting disabled")
+			} else {
+
+				printConsole("Lighting enabled")
+			}
 		}
 	}
 	/*	canvas.addEventListener("mousemove", function() {

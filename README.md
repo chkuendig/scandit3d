@@ -21,7 +21,7 @@ Try it out at http://***REMOVED***/scandit3d/.
   - [ ] Background Music
 - [ ] 3D Maze
   - [ ] better textures (not from Win95)
-  - [ ] default enable lightening (only on space currently)
+  - [x] default enable lightening (only on space currently)
 - [ ] Status bar
   - [ ] 🐞aspect ratio of status bar (Doom used [non-square pixels](https://doom.fandom.com/wiki/Aspect_ratio))
   - [ ] 🐞using AmazDooMLeft for whole logo (instead of just left side)

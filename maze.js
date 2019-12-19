@@ -125,19 +125,17 @@ var polyind = [
 	[14, 9, 8, 14, 8, 13, 14, 13, 0, 1, 5, 11, 1, 11, 10, 1, 10, 4, 4, 10, 6, 4, 6, 2, 4, 2, 18, 10, 11, 7, 10, 7, 15, 10, 15, 6, 11, 5, 19, 11, 19, 3, 11, 3, 7, 5, 1, 12, 5, 12, 17, 5, 17, 19, 1, 4, 18, 1, 18, 16, 1, 16, 12, 3, 19, 17, 3, 17, 9, 3, 9, 14, 17, 12, 16, 17, 16, 8, 17, 8, 9, 16, 18, 2, 16, 2, 13, 16, 13, 8, 2, 6, 15, 2, 15, 0, 2, 0, 13, 15, 7, 3, 15, 3, 14, 15, 14, 0]]
 
 function resizeCanvas(canvas, ctx) {
-/*	canvas.width = 1920;
-	canvas.height = 1080;*/
 
 
-	 // Get the device pixel ratio, falling back to 1.
-	 var dpr = window.devicePixelRatio || 1;
-	 console.log("Device Pixel Ratio: "+dpr)
-	 // Get the size of the canvas in CSS pixels.
-	 var rect = canvas.getBoundingClientRect();
-	 // Give the canvas pixel dimensions of their CSS
-	 // size * the device pixel ratio.
-	 canvas.width = rect.width * dpr;
-	 canvas.height = rect.height * dpr;
+	// Get the device pixel ratio, falling back to 1.
+	var dpr = window.devicePixelRatio || 1;
+	console.log("Device Pixel Ratio: " + dpr)
+	// Get the size of the canvas in CSS pixels.
+	var rect = canvas.getBoundingClientRect();
+	// Give the canvas pixel dimensions of their CSS
+	// size * the device pixel ratio.
+	canvas.width = rect.width * dpr;
+	canvas.height = rect.height * dpr;
 
 	ctx.viewport(0, 0, canvas.width, canvas.height);
 
@@ -153,9 +151,9 @@ window.startMaze = function () {
 	gl = WebGLUtils.setupWebGL(canvas, { preserveDrawingBuffer: false });
 	if (!gl) { alert("WebGL isn't available"); }
 
-	window.addEventListener('resize', function() {
-		aspect = resizeCanvas(canvas, gl);}
-		, false);
+	window.addEventListener('resize', function () {
+		aspect = resizeCanvas(canvas, gl);
+	}, false);
 	aspect = resizeCanvas(canvas, gl);
 
 	gl.clearColor(0, 0, 0, 1.0);
@@ -198,7 +196,7 @@ window.startMaze = function () {
 		const wallTexture = gl.createTexture();
 		gl.activeTexture(gl.TEXTURE0);
 		gl.bindTexture(gl.TEXTURE_2D, wallTexture);
-	    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, wallImg);
+		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, wallImg);
 		gl.generateMipmap(gl.TEXTURE_2D);
 
 		const floorImg = new Image();
@@ -491,7 +489,7 @@ var render = function () {
 	}
 	var fps = 1000 / (thisLoop - lastLoop);
 	lastLoop = thisLoop;
-	document.getElementById("fps").value = "FPS: "+fps.toFixed();
+	document.getElementById("fps").value = "FPS: " + fps.toFixed();
 
 	document.body.onkeyup = function (e) {
 		if (e.keyCode == 32) {
@@ -643,57 +641,3 @@ function nextMove(theta, X, Y, dtheta, dX, dY) {
 	}
 }
 
-
-function newMaze(x, y) { //https://www.dstromberg.com/2013/07/tutorial-random-maze-generation-algorithm-in-javascript/
-	var totalCells = x * y;
-	var cells = new Array();
-	var unvis = new Array();
-
-	//initilize arrays	
-	for (var i = 0; i < y; i++) {
-		cells[i] = new Array();
-		unvis[i] = new Array();
-		for (var j = 0; j < x; j++) {
-			cells[i][j] = [0, 0, 0, 0];
-			unvis[i][j] = true;
-		}
-	}
-
-	//set starting position
-	var currentCell = [Math.floor(Math.random() * y), Math.floor(Math.random() * x)];
-
-	var path = [currentCell];
-	unvis[currentCell[0]][currentCell[1]] = false;
-	var visited = 1;
-
-
-	while (visited < totalCells) {
-		//generate array of valid unvisited neighbor cells
-		var potential = [[currentCell[0] - 1, currentCell[1], 0, 2],	// top
-		[currentCell[0], currentCell[1] + 1, 1, 3],	// right
-		[currentCell[0] + 1, currentCell[1], 2, 0],	// bottom
-		[currentCell[0], currentCell[1] - 1, 3, 1]];	// left
-		var neighbors = new Array();
-		for (var l = 0; l < 4; l++) {
-			if (potential[l][0] > -1 && potential[l][0] < y && potential[l][1] > -1 && potential[l][1] < x && unvis[potential[l][0]][potential[l][1]]) {
-				neighbors.push(potential[l]);
-			}
-		}
-		//remove the border to a neighboring cell and visit it
-		if (neighbors.length) {
-			var next = neighbors[Math.floor(Math.random() * neighbors.length)];
-			cells[currentCell[0]][currentCell[1]][next[2]] = 1;
-			cells[next[0]][next[1]][next[3]] = 1;
-
-			unvis[next[0]][next[1]] = false;
-			visited++;
-
-			currentCell = [next[0], next[1]];
-			path.push(currentCell);
-		} else {
-			currentCell = path.pop();
-		}
-	}
-
-	return cells;
-}

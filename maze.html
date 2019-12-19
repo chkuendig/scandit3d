@@ -156,6 +156,8 @@
 <script src="//cdn.jsdelivr.net/gh/esangel/WebGL/Common/webgl-utils.js"></script>
 <script src="//cdn.jsdelivr.net/gh/esangel/WebGL/Common/initShaders.js"></script>
 <script src="//cdn.jsdelivr.net/gh/esangel/WebGL/Common/MV.js"></script>
+<!-- https://www.dstromberg.com/2013/07/tutorial-random-maze-generation-algorithm-in-javascript/ -->
+<script src="//cdn.jsdelivr.net/gh/dstromberg2/maze-generator/mazegenerator.js"></script>
 <script src="//cdn.jsdelivr.net/npm/scandit-sdk@4.x"></script>
 <script src="//cdn.jsdelivr.net/npm/bwip-js@2.x"></script>
 <script src="//cdn.jsdelivr.net/npm/bwip-js@2.x/lib/symdesc.js"></script>
@@ -426,7 +428,7 @@
           scanResult.barcodes.forEach(function (barcode) {
             if (barcode.data != lastBarcode) {
               lastBarcode = barcode.data;
-              printConsole("New Barcode: " + lastBarcode)
+              printConsole("Scanned Barcode: " + lastBarcode)
             }
             drawCodeLocation(barcode.location, scanResult.imageSettings);
           });

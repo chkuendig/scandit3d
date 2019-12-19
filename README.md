@@ -10,6 +10,8 @@
 
 # Scandit Winter Hackathon 2019 Project.
 
+[![Screenshot](http://***REMOVED***/scandit3d/screenshot-thumb.png)](http://***REMOVED***/scandit3d/screenshot.png)
+
 ## How to use
 Try it out at http://***REMOVED***/scandit3d/. 
 * Click once in the main area to start it (click a second time to go into fullscreen). 

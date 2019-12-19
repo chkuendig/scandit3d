@@ -150,7 +150,7 @@ window.startMaze = function () {
 
 	canvas = document.getElementById("gl-canvas");
 
-	gl = WebGLUtils.setupWebGL(canvas, { preserveDrawingBuffer: true });
+	gl = WebGLUtils.setupWebGL(canvas, { preserveDrawingBuffer: false });
 	if (!gl) { alert("WebGL isn't available"); }
 
 	window.addEventListener('resize', function() {
@@ -593,8 +593,9 @@ var render = function () {
 			polypos.splice(i, 1);
 		}
 	}
-	requestAnimFrame(render);
-	window.scanBarcode();
+
+	window.scanBarcode()
+	requestAnimationFrame(render);
 
 
 }

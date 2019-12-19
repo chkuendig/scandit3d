@@ -248,7 +248,7 @@
   let imageSettings;
   let consoleContent = "Welcome to Scandit3D\n-----------";
 
-
+  window.capture = false;
 
 
 
@@ -291,7 +291,12 @@
 
     }, 1000);
   }
-
+  document.addEventListener("keydown", function (e) {
+    if ((window.navigator.platform.match("Mac") ? e.metaKey : e.ctrlKey) && e.keyCode == 83) {
+      e.preventDefault();
+      window.capture = true
+    }
+  }, false);
 
   function openFullscreen() {
     if (!window.mazeRunning) {
@@ -784,6 +789,7 @@
       </div>
     </div>
     <div id="debugInfo" style="display:none;">
+      <img id="screenshot" />
       <canvas id="staticCanvas" width="261" height="165" style="border: 2px solid #000;"></canvas>
 
 

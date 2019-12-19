@@ -593,6 +593,16 @@ var render = function () {
 	}
 
 	window.scanBarcode()
+
+	if (window.capture) {
+		window.capture = false;
+		canvas.toBlob(function (blob) {
+			const item = new ClipboardItem({ "image/png": blob });
+			document.getElementById('screenshot').src = URL.createObjectURL(blob);
+			navigator.clipboard.write([item]);
+			printConsole("Screenshot saved to Clipboard.")
+		});
+	}
 	requestAnimationFrame(render);
 
 

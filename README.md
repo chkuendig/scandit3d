@@ -15,6 +15,7 @@ Try it out at http://***REMOVED***/scandit3d/.
   - [ ] 🐞no message on lauch ("click to start")
   - [ ] start screen / animation
   - [ ] blood animation / overlay 
+  - [x] take screenshots
 - [ ] Sound effects 
   - [ ] 🐞 gun sound doesn't play (commented out)
   - [ ] Background Music

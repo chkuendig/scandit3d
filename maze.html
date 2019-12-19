@@ -12,26 +12,24 @@
     font-size: 12px;
     background-color: black;
   }
- #global-container {
 
-  position: absolute;
-        top: 0;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        margin: auto;
+  #global-container {
+
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
     width: 75vw;
-    height: calc(75vw*0.6625); /* 16*9 + 320*32 = 0.5625 + 0.1 */
- }
+    height: calc(75vw*0.6625);
+    /* 16*9 + 320*32 = 0.5625 + 0.1 */
+  }
 
- .code-location-canvas  {
-  
-    }
+  .code-location-canvas {}
 
-   
-    .code-location-canvas.active {
 
-    }
+  .code-location-canvas.active {}
 
   #scanner-container,
   #gl-canvas,
@@ -57,14 +55,18 @@
     opacity: 1;
 
 
-        
+
     transition: border-color 1s linear;
-      -moz-transition: border-color 1s linear;    /* FF3.7+ */
-      -o-transition: border-color 1s linear;      /* Opera 10.5 */
-      -webkit-transition: border-color 1s linear; /* Saf3.2+, Chrome */
+    -moz-transition: border-color 1s linear;
+    /* FF3.7+ */
+    -o-transition: border-color 1s linear;
+    /* Opera 10.5 */
+    -webkit-transition: border-color 1s linear;
+    /* Saf3.2+, Chrome */
 
     border: 10px solid rgb(250, 2, 2);
   }
+
   .code-location-canvas.hide {
     opacity: 0;
     -webkit-transition: opacity 1000ms linear;
@@ -93,11 +95,11 @@
     padding-left: 0.4vw;
     padding-right: 0.4vw;
     padding-bottom: 0.2vw;
-    border-left:0.3vw outset rgba(255, 255, 255, .1) ;  
+    border-left: 0.3vw outset rgba(255, 255, 255, .1);
 
-    border-top:0.3vw outset rgba(255, 255, 255, .3) ;
-    border-right:0.3vw outset rgba(0, 0, 0, .9) ; 
-    border-bottom:0.3vw outset rgba(0, 0, 0, .7) ; 
+    border-top: 0.3vw outset rgba(255, 255, 255, .3);
+    border-right: 0.3vw outset rgba(0, 0, 0, .9);
+    border-bottom: 0.3vw outset rgba(0, 0, 0, .7);
   }
 
   .params>div {
@@ -106,7 +108,7 @@
     transform: scale(0.5);
     transform-origin: top left;
     padding: 0px;
-    margin:0px;
+    margin: 0px;
     font-size: 1.3vw;
 
 
@@ -127,14 +129,27 @@
     background-color: #212529;
     padding: 0.5rem 1rem;
 }*/
-.nes-balloon, .nes-btn, .nes-container.is-rounded, .nes-container.is-rounded.is-dark, .nes-dialog.is-rounded, .nes-dialog.is-rounded.is-dark, .nes-input, .nes-progress, .nes-progress.is-rounded, .nes-select select, .nes-table.is-bordered, .nes-table.is-dark.is-bordered, .nes-textarea {
-        border-width: 0.3vw;
-}
+  .nes-balloon,
+  .nes-btn,
+  .nes-container.is-rounded,
+  .nes-container.is-rounded.is-dark,
+  .nes-dialog.is-rounded,
+  .nes-dialog.is-rounded.is-dark,
+  .nes-input,
+  .nes-progress,
+  .nes-progress.is-rounded,
+  .nes-select select,
+  .nes-table.is-bordered,
+  .nes-table.is-dark.is-bordered,
+  .nes-textarea {
+    border-width: 0.3vw;
+  }
 
-.nes-input, .nes-textarea {
+  .nes-input,
+  .nes-textarea {
     padding: .2vw 0.4vw;
     margin: 0.5vw;
-}
+  }
 </style>
 
 
@@ -217,33 +232,41 @@
   </script>
 
 <script type="text/javascript">
+  /*
+   _____ _____   ___   _   _______ _____ _____   ___________ 
+  /  ___/  __ \ / _ \ | \ | |  _  \_   _|_   _| |____ |  _  \
+  \ `--.| /  \// /_\ \|  \| | | | | | |   | |       / / | | |
+   `--. \ |    |  _  || . ` | | | | | |   | |       \ \ | | |
+  /\__/ / \__/\| | | || |\  | |/ / _| |_  | |   .___/ / |/ / 
+  \____/ \____/\_| |_/\_| \_/___/  \___/  \_/   \____/|___/  
+                                                             
+  */
 
   let scanner;
   let imageSettings;
-let consoleContent = "Welcome to Scandit3D\n-----------";
+  let consoleContent = "Welcome to Scandit3D\n-----------";
 
 
 
 
-  /* https://github.com/Scandit/barcodescanner-sdk-for-web-samples/blob/master/vanilla-samples/code-location/index.html */
 
 
   function drawCodeLocation(location, imageSettings) {
-       //  codeLocationCanvasContext.clearRect(0, 0, codeLocationCanvasContext.canvas.width, codeLocationCanvasContext.canvas.height);
-          // Adjust code location canvas context size based on currently active camera resolution
-      // Create the code location canvas element
-  var codeLocationCanvasElement = document.createElement("canvas");
-  
-  codeLocationCanvasElement.classList.add("code-location-canvas");
-  codeLocationCanvasElement.classList.add("active"); 
-  // Set the code location canvas to fit in its parent element in the same way as the camera video inside the barcode picker
-  codeLocationCanvasElement.style.objectFit = codeLocationCanvasElement.dataset.objectFit = ScanditSDK.BarcodePicker.ObjectFit.CONTAIN; // Second value used by "objectFitPolyfill" library
+    //  codeLocationCanvasContext.clearRect(0, 0, codeLocationCanvasContext.canvas.width, codeLocationCanvasContext.canvas.height);
+    // Adjust code location canvas context size based on currently active camera resolution
+    // Create the code location canvas element
+    var codeLocationCanvasElement = document.createElement("canvas");
+
+    codeLocationCanvasElement.classList.add("code-location-canvas");
+    codeLocationCanvasElement.classList.add("active");
+    // Set the code location canvas to fit in its parent element in the same way as the camera video inside the barcode picker
+    codeLocationCanvasElement.style.objectFit = codeLocationCanvasElement.dataset.objectFit = ScanditSDK.BarcodePicker.ObjectFit.CONTAIN; // Second value used by "objectFitPolyfill" library
 
 
-  var codeLocationCanvasContext = codeLocationCanvasElement.getContext("2d");
+    var codeLocationCanvasContext = codeLocationCanvasElement.getContext("2d");
 
-  codeLocationCanvasContext.canvas.width = imageSettings.width;
-          codeLocationCanvasContext.canvas.height = imageSettings.height;
+    codeLocationCanvasContext.canvas.width = imageSettings.width;
+    codeLocationCanvasContext.canvas.height = imageSettings.height;
     codeLocationCanvasContext.beginPath();
     codeLocationCanvasContext.moveTo(location.topLeft.x, location.topLeft.y);
     codeLocationCanvasContext.lineTo(location.topRight.x, location.topRight.y);
@@ -257,86 +280,38 @@ let consoleContent = "Welcome to Scandit3D\n-----------";
     codeLocationCanvasContext.fill();
 
 
-      document.getElementById("scanner-container").appendChild(codeLocationCanvasElement);
+    document.getElementById("scanner-container").appendChild(codeLocationCanvasElement);
 
-      //codeLocationCanvasElement.classList.add("hide");
-   //   codeLocationCanvasElement.style.opacity = '0';
-setTimeout(function(){codeLocationCanvasElement.parentNode.removeChild(codeLocationCanvasElement);
+    //codeLocationCanvasElement.classList.add("hide");
+    //   codeLocationCanvasElement.style.opacity = '0';
+    setTimeout(function () {
+      codeLocationCanvasElement.parentNode.removeChild(codeLocationCanvasElement);
 
-  }, 1000);
-  }
-  
-  /*
-  function drawCodeLocation(barcodeLocation, imageSettings, duration) {
-    duration = 200;
-  var zoomFactor = 1 // Math.min(window.innerWidth / imageSettings.width, window.innerHeight / imageSettings.height);
-  var locationCanvas = document.createElement("canvas");
-  locationCanvas.width = window.innerWidth;
-  locationCanvas.height = window.innerHeight;
-  var offsetX = (window.innerWidth - imageSettings.width * zoomFactor) / 2;
-  var offsetY = (window.innerHeight - imageSettings.height * zoomFactor) / 2;
-  var locationCanvasContext = locationCanvas.getContext("2d");
-
-  var firstPointX = offsetX + barcodeLocation.topLeft.x * zoomFactor;
-  var firstPointY = offsetY + barcodeLocation.topLeft.y * zoomFactor;
-  var secondPointX = offsetX + barcodeLocation.topRight.x * zoomFactor;
-  var secondPointY = offsetY + barcodeLocation.topRight.y * zoomFactor;
-  var thirdPointX = offsetX + barcodeLocation.bottomRight.x * zoomFactor;
-  var thirdPointY = offsetY + barcodeLocation.bottomRight.y * zoomFactor;
-  var fourthPointX = offsetX + barcodeLocation.bottomLeft.x * zoomFactor;
-  var fourthPointY = offsetY + barcodeLocation.bottomLeft.y * zoomFactor;
-
-  locationCanvasContext.beginPath();
-  locationCanvasContext.moveTo(firstPointX, firstPointY);
-  locationCanvasContext.lineTo(secondPointX, secondPointY);
-  locationCanvasContext.lineTo(thirdPointX, thirdPointY);
-  locationCanvasContext.lineTo(fourthPointX, fourthPointY);
-  locationCanvasContext.closePath();
-  locationCanvasContext.fillStyle = "rgba(46, 192, 204, 0.3)";
-  locationCanvasContext.fill();
-  locationCanvasContext.lineWidth = 3 * zoomFactor;
-  locationCanvasContext.strokeStyle = "rgba(46, 192, 204, 0.6)";
-  locationCanvasContext.stroke();
-
-  $(locationCanvas).addClass("barcode-location");
-  if (mirrorMode) {
-    locationCanvas.style.transform = "scale(-1, 1)";
-  }
-  if (!browserCompatibility.fullSupport && isIPhoneDevice) {
-    locationCanvas.style.transform = "rotate(" + (90 - window.orientation) + "deg)";
+    }, 1000);
   }
 
-  document.getElementById("scanner-container").appendChild(locationCanvas);
-  //barcodePickerElement.appendChild(locationCanvas);
-  $(locationCanvas).fadeIn(150);
-  setTimeout(function() {
-    $(locationCanvas).fadeOut(250, function() {
-      $(locationCanvas).remove();
-    });
-  }, duration);
-}*/
+
   function openFullscreen() {
-    if(!window.mazeRunning){
+    if (!window.mazeRunning) {
       window.startMaze();
-return;
-} 
-var elem = document.querySelector("body");
-  if (elem.requestFullscreen) {
-    elem.requestFullscreen();
-  } else if (elem.mozRequestFullScreen) { /* Firefox */
-    elem.mozRequestFullScreen();
-  } else if (elem.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
-    elem.webkitRequestFullscreen();
-  } else if (elem.msRequestFullscreen) { /* IE/Edge */
-    elem.msRequestFullscreen();
+      return;
+    }
+    var elem = document.querySelector("body");
+    if (elem.requestFullscreen) {
+      elem.requestFullscreen();
+    } else if (elem.mozRequestFullScreen) { /* Firefox */
+      elem.mozRequestFullScreen();
+    } else if (elem.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
+      elem.webkitRequestFullscreen();
+    } else if (elem.msRequestFullscreen) { /* IE/Edge */
+      elem.msRequestFullscreen();
+    }
   }
-}
 
   // Configure the library and activate it with a license key
   const licenseKey = "AQHduh1+AwzOFL6nFgRfpBIu8gaEHSR1pUkHQ0V0mutqEosrL34nZlZSHOosKO2+/m2Pq6hy2+bUR8DdaVc7nSos+bnIWw/yY19qjp5T8WelVqhSLmU5gwshMCHBUoTBgj0dimJDB1ppHCMIcict8Kcat3b3QSdlmyCFC3sEvchreyCQjqo8P/46gGwnACdGJA+x5SYtl/Drjyu33fb6dwM8Y7+5XQl0z5izutO3mFd/c7MvdJsWgDTkqOIXrGtCyDmHDXGwam3ZxdKOKAtC0e3IO6lxxiq4JfFA/1nrf1J8UKbJlNRWZ7uZffPzokYH9od5TabgIXa62S+reJufWt+MZXD7dyEwjOA0MCQzKlgQFP0i791He/8tUj3Mpu8ZoQzNFm7LVls7XAP0FXBZBoSinx5BVmfGVXt//T5Z47RqDQKLowYtzb9JKYyyvtGa6FaFgIsUO332+6fk9xm2q8QwknioOmjY9hmdT6ezTCcEhyH9dQd6xWh9GBfuDIR7dTvJBq6FAA+5DAyL2EPWHymeUyXpT3vItTQ1iY0MxblFnOHh2lfHXCJbiAqJoIO+UITDHO1qXWr6mAa+sE8Uxkn6ORbq+dueTWURUZk7LlyPxfE8kKMU76PdiOOHypDEM13qAdLrATjh8Yb5sjBdrQJjU+trMf88E/+zd/Vd7CEWv3r+3Fe+HiN3iZLtDgxmYko0Vy0e3m9wRrRjelB94L6PxHPtS7eGHKRMe+4mku9u5KqYQQLuP9IX2ZarRTPHYxVXRt2Q2XQys541ivWf75RvHMFqhetoDzVUYzo+Srhtl722brYJAbBp5zD8swkXBfHw/m1gO3h3GA==";
   // Configure the engine location, as explained on http://docs.scandit.com/stable/web/index.html
-  // const engineLocation = "build"; // the folder containing the engine
-  // or, if using a CDN:
+
   const engineLocation = "https://cdn.jsdelivr.net/npm/scandit-sdk@4.x/build"
 
   function refreshScanSettings(enabledSymbologies) {
@@ -385,21 +360,7 @@ var elem = document.querySelector("body");
         staticCanvas.height = height;
         ctx.drawImage(wallImg, 0, 0);
         imageData = ctx.getImageData(0, 0, width, height).data;
-        /* let imageSettings = {
-          width: width,
-          height: height,
-          format: ScanditSDK.ImageSettings.Format.RGBA_8U
-        }
-       scanner.applyImageSettings(imageSettings);
-
-        scanner.processImage(imageData).then(scanResult => {
-          console.log("Initial Scan: " + scanResult.barcodes[0].data);
-
-       
-    
-
-        });
-      */ }
+      }
 
       wallImg.src = './wall.bmp';
     });
@@ -458,14 +419,14 @@ var elem = document.querySelector("body");
         scanner.processImage(inputImageDataRotated).then(scanResult => {
 
           // Draw new code locations
-          if(scanResult.barcodes.length >0 && dspistol ) {
+          if (scanResult.barcodes.length > 0 && dspistol) {
 
             //dspistol.play();
           }
           scanResult.barcodes.forEach(function (barcode) {
-            if(barcode.data != lastBarcode){
+            if (barcode.data != lastBarcode) {
               lastBarcode = barcode.data;
-              printConsole("New Barcode: "+lastBarcode)
+              printConsole("New Barcode: " + lastBarcode)
             }
             drawCodeLocation(barcode.location, scanResult.imageSettings);
           });
@@ -614,8 +575,8 @@ var elem = document.querySelector("body");
 
     document.getElementById('rotateSelect').addEventListener('change', function (ev) {
 
-document.getElementById("renderBarcode").click();
-})
+      document.getElementById("renderBarcode").click();
+    })
     document.getElementById('symbologySelect').addEventListener('change', function (ev) {
 
       document.getElementById("renderBarcode").click();
@@ -636,10 +597,10 @@ document.getElementById("renderBarcode").click();
   });
 
 
-  function printConsole(lineString){
-      consoleContent += "\n" + lineString
-      document.getElementById("console").value = consoleContent;
-      document.getElementById("console").scrollTop = document.getElementById("console").scrollHeight 
+  function printConsole(lineString) {
+    consoleContent += "\n" + lineString
+    document.getElementById("console").value = consoleContent;
+    document.getElementById("console").scrollTop = document.getElementById("console").scrollHeight
   }
 
   function renderBarcode() {
@@ -716,109 +677,116 @@ document.getElementById("renderBarcode").click();
 
 <body>
 
-<audio id="dspistol">
-  <source src="dspistol.wav" type="audio/wav">
-  Your browser does not support the audio element.
-</audio>
+  <audio id="dspistol">
+    <source src="dspistol.wav" type="audio/wav">
+    Your browser does not support the audio element.
+  </audio>
 
-<div id="global-container">
-  <div id="scanner-container" class="scanner" onclick="javascript:openFullscreen();">
-    <canvas id="gl-canvas">
-      Oops ... your browser doesn't support the HTML5 canvas element
-    </canvas>
-    <input readonly size="7" id="fps" style="color:red;position:absolute;bottom:0px;right:0px;border:0px;background:none;">
-    
-    <input readonly size="5" id="numberOfCodesPerFrame" style="display:none;">
-  </div>
-  <div id="statusBar">
+  <div id="global-container">
+    <div id="scanner-container" class="scanner" onclick="javascript:openFullscreen();">
+      <canvas id="gl-canvas">
+        Oops ... your browser doesn't support the HTML5 canvas element
+      </canvas>
+      <input readonly size="7" id="fps"
+        style="color:red;position:absolute;bottom:0px;right:0px;border:0px;background:none;">
 
-
-    <div class="params" style="border-right:none;">
-      <div>
-        <div class="nes-field is-inline">
-          <label for="symbologySelect" style="color:#fff;">Symbology</label>
-          <div class="nes-select is-dark" style="width:50%;float: right;">
-            <select id="symbologySelect">
-            </select>
-          </div>
-        </div>
-        <div style="padding: 0rem;" class="nes-field is-inline">
-          <label for="symtext" style="color:#fff;">Data</label>
-          <input type="text" id="symtext" class="nes-input is-dark">
-        </div>
-        <div style="padding: 0rem;" class="nes-field is-inline">
-          <label for="symaltx" style="color:#fff;">Text</label>
-          <input type="text" id="symaltx" class="nes-input is-dark">
-        </div>
-      </div>
+      <input readonly size="5" id="numberOfCodesPerFrame" style="display:none;">
     </div>
+    <div id="statusBar">
 
-    <div class="params" style="border-left:none;margin-left:0;">
-      <div>
-        <div style="padding: 0rem;" class="nes-field is-inline">
-          <label for="symopts" style="color:#fff;">Options</label>
-          <input type="text" id="symopts" class="nes-input is-dark">
-        </div>
-        <div class="nes-field is-inline">
-          <label for="rotate" style="color:#fff;">Rotate</label>
-          <div class="nes-select is-dark" style="width:50%;float: right;">
-            <select  id="rotateSelect" name="rotate">
-              <option value="N">Normal</option>
-              <option value="R">Right</option>
-              <option value="L">Left</option>
-              <option value="I">Invert</option>
-            </select>
-          </div>
-        </div>
-        <div class="nes-field " style="text-align:center;">
-          <button class='nes-btn is-error' id="renderBarcode">Show Barcode</button>
-        </div>
+
+      <div class="params" style="border-right:none;">
         <div>
+          <div class="nes-field is-inline">
+            <label for="symbologySelect" style="color:#fff;">Symbology</label>
+            <div class="nes-select is-dark" style="width:50%;float: right;">
+              <select id="symbologySelect">
+              </select>
+            </div>
+          </div>
+          <div style="padding: 0rem;" class="nes-field is-inline">
+            <label for="symtext" style="color:#fff;">Data</label>
+            <input type="text" id="symtext" class="nes-input is-dark">
+          </div>
+          <div style="padding: 0rem;" class="nes-field is-inline">
+            <label for="symaltx" style="color:#fff;">Text</label>
+            <input type="text" id="symaltx" class="nes-input is-dark">
+          </div>
         </div>
       </div>
+
+      <div class="params" style="border-left:none;margin-left:0;">
+        <div>
+          <div style="padding: 0rem;" class="nes-field is-inline">
+            <label for="symopts" style="color:#fff;">Options</label>
+            <input type="text" id="symopts" class="nes-input is-dark">
+          </div>
+          <div class="nes-field is-inline">
+            <label for="rotate" style="color:#fff;">Rotate</label>
+            <div class="nes-select is-dark" style="width:50%;float: right;">
+              <select id="rotateSelect" name="rotate">
+                <option value="N">Normal</option>
+                <option value="R">Right</option>
+                <option value="L">Left</option>
+                <option value="I">Invert</option>
+              </select>
+            </div>
+          </div>
+          <div class="nes-field " style="text-align:center;">
+            <button class='nes-btn is-error' id="renderBarcode">Show Barcode</button>
+          </div>
+          <div>
+          </div>
+        </div>
+      </div>
+
+
+      <div class="params" style="border:none;background-color:#1B1B1B;position:relative;">
+        <textarea id="console" disabled
+          style="width:100%;height:100%;background:none;resize: none;border:0px;color:green;font-size:0.4vw"></textarea>
+
+      </div>
+
+
+      <div class="params" style="border:none;padding:0px;align:center;">
+        <style>
+          h1 {
+            padding: 0px;
+            margin: 0px;
+            font-size: 5vw;
+            letter-spacing: 0.4vw;
+            color: #f5f5f5;
+            text-shadow: 0px -0.05vw 1vw #FF3, 0px -1vw 2vw #F90, 0px -2vw 4vw #C33;
+
+            -webkit-text-stroke: 1px orange;
+
+            -webkit-text-fill-color: black;
+          }
+
+          @font-face {
+            font-family: 'AmazDooMRight';
+            src: url('AmazDooMRight.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+          }
+
+          @font-face {
+            font-family: 'AmazDooMLeft';
+            src: url('AmazDooMLeft.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+          }
+        </style>
+        <h1 style='margin-top:0.6vw;margin-left:1vw'><span style="font-family:AmazDoomLeft">Scandit3D</span></h1>
+
+      </div>
     </div>
-
-
-    <div class="params" style="border:none;background-color:#1B1B1B;position:relative;">
-      <textarea id="console" disabled style="width:100%;height:100%;background:none;resize: none;border:0px;color:green;font-size:0.4vw"></textarea>
-
-    </div>
-
-
-    <div class="params"style="border:none;padding:0px;align:center;" >
-      <style>
-        h1 {
-          padding:0px;margin:0px;
-          font-size:5vw;
-          letter-spacing: 0.4vw;
-          color: #f5f5f5;
-text-shadow:  0px -0.05vw 1vw #FF3, 0px -1vw 2vw         #F90, 0px -2vw 4vw #C33;
-
--webkit-text-stroke: 1px   orange;
-
-    -webkit-text-fill-color:black;
-        }
-      @font-face {
-        font-family: 'AmazDooMRight';
-        src: url('AmazDooMRight.ttf') format('truetype');
-        font-weight: normal; font-style: normal;
-      }
-
-      @font-face {
-        font-family: 'AmazDooMLeft';
-        src: url('AmazDooMLeft.ttf')  format('truetype');
-        font-weight: normal; font-style: normal;
-      }</style>
-      <h1 style='margin-top:0.6vw;margin-left:1vw'><span style="font-family:AmazDoomLeft">Scandit3D</span></h1>
-    
-    </div>
-  </div>
     <div id="debugInfo" style="display:none;">
       <canvas id="staticCanvas" width="261" height="165" style="border: 2px solid #000;"></canvas>
-  
-  
+
+
       <canvas id="barcodeCanvas" width=1 height=1 style="border:1px solid #fff;visibility:hidden"></canvas>
-  
+
     </div>
 
   </div>

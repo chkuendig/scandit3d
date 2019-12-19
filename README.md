@@ -1,12 +1,4 @@
-~~~
- _____ _____   ___   _   _______ _____ _____   ___________ 
-/  ___/  __ \ / _ \ | \ | |  _  \_   _|_   _| |____ |  _  \
-\ `--.| /  \// /_\ \|  \| | | | | | |   | |       / / | | |
- `--. \ |    |  _  || . ` | | | | | |   | |       \ \ | | |
-/\__/ / \__/\| | | || |\  | |/ / _| |_  | |   .___/ / |/ / 
-\____/ \____/\_| |_/\_| \_/___/  \___/  \_/   \____/|___/  
-                                                           
-~~~                                                           
+                                  
 
 # Scandit Winter Hackathon 2019 Project.
 
@@ -19,12 +11,12 @@ Try it out at http://***REMOVED***/scandit3d/.
 
 ## Bugs & Improvements
 - [ ] Graphics
-  - [ ] Full screen
+  - [x] Full screen
   - [ ] 🐞no message on lauch ("click to start")
   - [ ] start screen / animation
   - [ ] blood animation / overlay 
 - [ ] Sound effects 
-  - [ ] Shots
+  - [ ] 🐞 gun sound doesn't play (commented out)
   - [ ] Background Music
 - [ ] 3D Maze
   - [ ] better textures (not from Win95)
@@ -44,11 +36,11 @@ Try it out at http://***REMOVED***/scandit3d/.
 
 * The **3D maze** is based on the WebGL-port of the 3D Maze screensaver from Windows 95 available at [ibid-11962/Windows-95-3D-Maze-Screensaver](https://github.com/ibid-11962/Windows-95-3D-Maze-Screensaver). The matrix libraries it uses are from [esangel/WebGL](https://github.com/esangel/WebGL/tree/master/Common) and the maze generator can be found at [dstromberg2/maze-generator](https://github.com/dstromberg2/maze-generator).
 
-* The **status bar** uses the UI elements from [NES.css](https://github.com/nostalgic-css/NES.css) and the font is [Press Start 2P](https://fonts.google.com/specimen/Press+Start+2P?selection.family=Press+Start+2P). 
-
+* The **status bar** uses the UI elements from [NES.css](https://github.com/nostalgic-css/NES.css) and the font is [Press Start 2P](https://fonts.google.com/specimen/Press+Start+2P?selection.family=Press+Start+2P). The background is a modified version of `STBAR` from the [DOOM1.WAD](https://doomwiki.org/wiki/DOOM1.WAD).
 
 * The **Scandit3D logo** uses the [AmazDooM font](https://www.dafont.com/amazdoom.font).
 
+* The **gun sound** is `SPISTOL` from the [DOOM1.WAD](https://doomwiki.org/wiki/DOOM1.WAD).
 
 
 

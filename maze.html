@@ -39,7 +39,6 @@
   }
 
   #scanner-container {
-
     display: block;
     position: relative;
   }
@@ -53,9 +52,6 @@
     left: 0;
     pointer-events: none;
     opacity: 1;
-
-
-
     transition: border-color 1s linear;
     -moz-transition: border-color 1s linear;
     /* FF3.7+ */
@@ -460,6 +456,7 @@
 
       let wallImg = new Image();
       let staticCanvas = document.getElementById("staticCanvas");
+      
       function nextPowerOf2(n) { // https://stackoverflow.com/questions/26965171/fast-nearest-power-of-2-in-javascript
         return 1 << 32 - Math.clz32(n);
       }
@@ -483,16 +480,10 @@
         gl.generateMipmap(gl.TEXTURE_2D);
 
       }
-
       wallImg.src = './pic.bmp';
-
-
-
-
     } catch (e) {
       // `e` may be a string or Error object
     }
-
 
   }
 
@@ -501,7 +492,6 @@
     if (!symbologyMapping) {
       var bwipSymbologies = Object.keys(symdesc)
       var scanditSymbologes = Object.values(ScanditSDK.Barcode.Symbology)
-
 
       var intersection = bwipSymbologies.filter(function (e) {
         return scanditSymbologes.indexOf(e) > -1;
@@ -512,6 +502,7 @@
         symbologyMapping[elem] = elem
 
       });
+
       // manually map symbologies
       symbologyMapping['qrcode'] = 'qr';
       symbologyMapping['microqrcode'] = 'microqr';
@@ -531,15 +522,13 @@
       var missing = scanditSymbologes.filter(function (e) {
         return Object.values(symbologyMapping).indexOf(e) < 0;
       });
-      console.log("WARNING: Symbologies without generator: ")
-      console.log(missing)
+      console.log("WARNING: Symbologies without generator: "+missing.join())
     }
     return symbologyMapping;
   }
 
   window.addEventListener('load', function () {
     var lastSymbol, lastBarText, lastAltText, lastOptions, lastRotate, lastScaleX, lastScaleY;
-
 
     // Set up the select list of barcode types
     var sel = document.getElementById('symbologySelect');
@@ -579,15 +568,13 @@
     sel.dispatchEvent(evt);
 
     document.getElementById('renderBarcode').addEventListener('click', renderBarcode);
-
     document.getElementById('rotateSelect').addEventListener('change', function (ev) {
-
       document.getElementById("renderBarcode").click();
     })
     document.getElementById('symbologySelect').addEventListener('change', function (ev) {
-
       document.getElementById("renderBarcode").click();
     })
+
     // Allow Enter to render
     document.getElementById('statusBar').addEventListener('keypress', function (ev) {
       if (ev.which == 13) {
@@ -603,7 +590,6 @@
       'bwip-js ' + bwipjs.VERSION + ' / BWIPP ' + bwipjs.BWIPP.VERSION);
   });
 
-
   function printConsole(lineString) {
     consoleContent += "\n" + lineString
     document.getElementById("console").value = consoleContent;
@@ -611,16 +597,13 @@
   }
 
   function renderBarcode() {
-
     var elt = symdesc[document.getElementById('symbologySelect').value];
     var text = document.getElementById('symtext').value.trim();
     var alttext = document.getElementById('symaltx').value.trim();
     var options = document.getElementById('symopts').value.trim();
     var rotate = document.querySelector('select[name="rotate"]').value;
 
-
     // Clear the page
-
     var canvas = document.getElementById('barcodeCanvas');
     canvas.height = 1;
     canvas.width = 1;
@@ -701,7 +684,6 @@
     </div>
     <div id="statusBar">
 
-
       <div class="params" style="border-right:none;">
         <div>
           <div class="nes-field is-inline">
@@ -747,13 +729,10 @@
         </div>
       </div>
 
-
       <div class="params" style="border:none;background-color:#1B1B1B;position:relative;">
         <textarea id="console" disabled
           style="width:100%;height:100%;background:none;resize: none;border:0px;color:green;font-size:0.4vw"></textarea>
-
       </div>
-
 
       <div class="params" style="border:none;padding:0px;align:center;">
         <style>
@@ -764,8 +743,6 @@
             letter-spacing: 0.4vw;
             color: #f5f5f5;
             text-shadow: 0px -0.05vw 1vw #FF3, 0px -1vw 2vw #F90, 0px -2vw 4vw #C33;
-
-
             -webkit-text-stroke: 0.02vw orange;
             -webkit-text-fill-color: black;
           }
@@ -791,15 +768,8 @@
     <div id="debugInfo" style="display:none;">
       <img id="screenshot" />
       <canvas id="staticCanvas" width="261" height="165" style="border: 2px solid #000;"></canvas>
-
-
       <canvas id="barcodeCanvas" width=1 height=1 style="border:1px solid #fff;visibility:hidden"></canvas>
-
     </div>
-
   </div>
 </body>
-
-
-
 </html>

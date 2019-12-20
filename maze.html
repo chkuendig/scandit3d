@@ -246,6 +246,7 @@
   let generateBarcodeScanCnt = 0;
   let generateBarcodeScanLimit = 0;
   let capture = false;
+  let screensaverMode = false;
   let wallImg = new Image();
   let mazeRunning = false;
 
@@ -376,8 +377,16 @@
         renderCanvas.height = height;
         ctx.drawImage(wallImg, 0, 0);
         imageData = ctx.getImageData(0, 0, width, height).data;
+        var urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('screensaver') && urlParams.get('screensaver') == "true") {
+          screensaverMode = true
+          startMaze(function () {
+            printConsole("Maze started");
+            renderBarcode();
+          });
+          generateBarcodeScanLimit = 5;
+        }
       }
-
       wallImg.src = './wall.bmp';
     });
   });

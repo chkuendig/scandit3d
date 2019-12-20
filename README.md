@@ -16,6 +16,7 @@ Try it out at http://***REMOVED***/scandit3d/.
   - [ ] start screen / animation
   - [ ] blood animation / overlay 
   - [x] take screenshots (ctrl/cmd+c)
+  - [x] Add screensaver mode (autostart with rotating barcodes)
 - [ ] Sound effects 
   - [ ] 🐞 gun sound doesn't play (commented out)
   - [ ] Background Music

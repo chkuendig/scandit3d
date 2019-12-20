@@ -611,7 +611,8 @@
 
     // Convert the options to an object.
     let opts = {
-      backgroundcolor: 'FFFFFF'
+      backgroundcolor: 'FFFFFF',
+      padding: 4
     };
     let aopts = options.split(' ');
     for (let i = 0; i < aopts.length; i++) {
@@ -634,6 +635,9 @@
     opts.rotate = rotate;
     if (alttext) {
       opts.alttext = alttext;
+    }
+    if (opts.bcid == "kix" || opts.bcid == "royalmail") {
+      opts.padding = 10;
     }
 
     // Draw the bar code to the canvas

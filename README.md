@@ -22,6 +22,7 @@ Try it out at http://***REMOVED***/scandit3d/.
 - [ ] 3D Maze
   - [ ] better textures (not from Win95)
   - [x] default enable lightening (only on space currently)
+  - [x] automatically loop barcodes (press 1-9 to set scans per symbology, 0 to disable)
 - [ ] Status bar
   - [x] 🐞aspect ratio of status bar (Doom used [non-square pixels](https://doom.fandom.com/wiki/Aspect_ratio))
   - [x] 🐞using AmazDooMLeft for whole logo (instead of just left side)

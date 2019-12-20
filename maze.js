@@ -491,27 +491,6 @@ var render = function () {
 	lastLoop = thisLoop;
 	document.getElementById("fps").value = "FPS: " + fps.toFixed();
 
-	document.body.onkeyup = function (e) {
-		if (e.keyCode == 32) {
-			lighting = !lighting;
-			if (!lighting) {
-				printConsole("💡Lighting disabled")
-			} else {
-
-				printConsole("💡Lighting enabled")
-			}
-		}
-	}
-	/*	canvas.addEventListener("mousemove", function() {
-			var curTime = new Date();
-			if (curTime-startTime>3000){
-				window.location.href = "desktop/index.html"
-				startTime = curTime;
-			}
-		});
-		*/
-
-
 	gl.uniform1i(gl.getUniformLocation(program, "lighting"), lighting);
 
 

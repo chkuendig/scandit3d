@@ -243,10 +243,9 @@
   let scanner;
   let imageSettings;
   let consoleContent = "🔥 Welcome to Scandit3D\n  -----------";
-
+  let generateBarcodeScanCnt = 0;
+  let generateBarcodeScanLimit = 0;
   window.capture = false;
-
-
 
 
   function drawCodeLocation(location, imageSettings) {
@@ -288,15 +287,39 @@
     }, 1000);
   }
   document.addEventListener("keydown", function (e) {
+    /* Screenshot */
     if ((window.navigator.platform.match("Mac") ? e.metaKey : e.ctrlKey) && e.keyCode == 83) {
       e.preventDefault();
       window.capture = true
+    }
+    /* enable/disable automatic barcode changes */
+    if ((e.keyCode >= 48 && e.keyCode <= 57) || (e.keyCode >= 96 && e.keyCode <= 105)) {
+      // 0-9 only
+      var keyValue = String.fromCharCode(e.keyCode)
+      generateBarcodeScanLimit = keyValue;
+      generateBarcodeScanCnt = 0;
+      if (keyValue > 0) {
+        printConsole("ℹ️ Enabled changing barcode after " + keyValue + " scans.")
+      } else {
+        printConsole("ℹ️ Disabled changing barcodes after scans.")
+      }
+    }
+    /* enable/disable lightin */
+    if (e.keyCode == 32) {
+      lighting = !lighting;
+      if (!lighting) {
+        printConsole("💡Lighting disabled")
+      } else {
+
+        printConsole("💡Lighting enabled")
+      }
     }
   }, false);
 
   function openFullscreen() {
     if (!window.mazeRunning) {
       window.startMaze();
+      renderBarcode();
       return;
     }
     var elem = document.querySelector("body");
@@ -418,24 +441,38 @@
         scanner.applyImageSettings(imageSettings);
         var dspistol = new Audio("dspistol.wav");
 
-
         scanner.processImage(inputImageDataRotated).then(scanResult => {
-
-          // Draw new code locations
           if (scanResult.barcodes.length > 0 && dspistol) {
-
             //dspistol.play();
           }
           scanResult.barcodes.forEach(function (barcode) {
             if (barcode.data != lastBarcode) {
               lastBarcode = barcode.data;
               printConsole("⚡️ Scanned Barcode: " + lastBarcode)
+             
             }
+            
+            // Draw new code locations
             drawCodeLocation(barcode.location, scanResult.imageSettings);
           });
+          var newScans =  scanResult.barcodes.length
+          if (generateBarcodeScanLimit > 0) {
+                generateBarcodeScanCnt += newScans;
+              }
+              if (generateBarcodeScanLimit > 0 && generateBarcodeScanCnt >= generateBarcodeScanLimit) {
+                generateBarcodeScanCnt = 0;
+                element = document.getElementById("symbologySelect");
+                element.selectedIndex = element.selectedIndex + 1 < element.length ? element.selectedIndex + 1 : 0;
+                if ("createEvent" in document) {
+                  var evt = document.createEvent("HTMLEvents");
+                  evt.initEvent("change", false, true);
+                  element.dispatchEvent(evt);
+                }
+                else {
+                  element.fireEvent("onchange");
+                }
+              }
           numberOfCodesPerFrameElement.value = scanResult.barcodes.length;
-
-
         })
       };
 
@@ -487,16 +524,16 @@
 
   }
 
-
   function getSymbologyMapping() {
     if (!symbologyMapping) {
       var bwipSymbologies = Object.keys(symdesc)
-      var scanditSymbologes = Object.values(ScanditSDK.Barcode.Symbology)
+      var scanditSymbologes = Object.values(ScanditSDK.Barcode.Symbology).filter(function (e) {return typeof e == "string"  })
+
 
       var intersection = bwipSymbologies.filter(function (e) {
         return scanditSymbologes.indexOf(e) > -1;
       });
-      var symbologyMapping = {};
+      symbologyMapping = {};
       // automatically map symbologies
       intersection.forEach(elem => {
         symbologyMapping[elem] = elem
@@ -630,13 +667,13 @@
     // Finish up the options
     opts.text = text;
     opts.bcid = elt.sym;
-    opts.scaleX = 1// scaleX;
-    opts.scaleY = 1// scaleY;
+    opts.scaleX = 2// scaleX;
+    opts.scaleY = 2// scaleY;
     opts.rotate = rotate;
     if (alttext) {
       opts.alttext = alttext;
     }
-    if (opts.bcid == "kix" || opts.bcid == "royalmail") {
+    if (opts.bcid == "kix" || opts.bcid == "royalmail" || opts.bcid == "maxicode") {
       opts.padding = 10;
     }
 

@@ -242,7 +242,7 @@
 
   let scanner;
   let imageSettings;
-  let consoleContent = "Welcome to Scandit3D\n-----------";
+  let consoleContent = "🔥 Welcome to Scandit3D\n  -----------";
 
   window.capture = false;
 
@@ -354,13 +354,13 @@
       console.log("Scanner Ready");
 
       let wallImg = new Image();
-      let staticCanvas = document.getElementById("staticCanvas");
+      let renderCanvas = document.getElementById("renderCanvas");
       wallImg.onload = function () {
-        let ctx = staticCanvas.getContext("2d");
+        let ctx = renderCanvas.getContext("2d");
         let width = wallImg.width;
         let height = wallImg.height;
-        staticCanvas.width = width;
-        staticCanvas.height = height;
+        renderCanvas.width = width;
+        renderCanvas.height = height;
         ctx.drawImage(wallImg, 0, 0);
         imageData = ctx.getImageData(0, 0, width, height).data;
       }
@@ -429,7 +429,7 @@
           scanResult.barcodes.forEach(function (barcode) {
             if (barcode.data != lastBarcode) {
               lastBarcode = barcode.data;
-              printConsole("Scanned Barcode: " + lastBarcode)
+              printConsole("⚡️ Scanned Barcode: " + lastBarcode)
             }
             drawCodeLocation(barcode.location, scanResult.imageSettings);
           });
@@ -449,31 +449,31 @@
       refreshScanSettings([symbology]);
     }
     try {
-      let renderCanvas = document.getElementById('barcodeCanvas')
-      let renderCtx = renderCanvas.getContext("2d");
-      imageData = renderCtx.getImageData(0, 0, renderCanvas.width, renderCanvas.height);
+      let barcodeCanvas = document.getElementById('barcodeCanvas')
+      let barcodeContext = barcodeCanvas.getContext("2d");
+      imageData = barcodeContext.getImageData(0, 0, barcodeCanvas.width, barcodeCanvas.height);
 
 
       let wallImg = new Image();
-      let staticCanvas = document.getElementById("staticCanvas");
+      let renderCanvas = document.getElementById("renderCanvas");
       
       function nextPowerOf2(n) { // https://stackoverflow.com/questions/26965171/fast-nearest-power-of-2-in-javascript
         return 1 << 32 - Math.clz32(n);
       }
 
-      let textureWidth = nextPowerOf2(Math.max(renderCanvas.width * 1.5, renderCanvas.height * 1.5));
+      let textureWidth = nextPowerOf2(Math.max(barcodeCanvas.width * 1.5, barcodeCanvas.height * 1.5));
       let textureHeight = textureWidth;
       wallImg.onload = function () {
-        staticCanvas.width = textureWidth
-        staticCanvas.height = textureHeight
-        let staticCtx = staticCanvas.getContext("2d");
+        renderCanvas.width = textureWidth
+        renderCanvas.height = textureHeight
+        let renderContext = renderCanvas.getContext("2d");
 
 
-        staticCtx.drawImage(wallImg, 0, 0, textureWidth, textureHeight);
-        staticCtx.putImageData(imageData, (textureWidth - renderCanvas.width) / 2, (textureHeight - renderCanvas.height) / 2);
+        renderContext.drawImage(wallImg, 0, 0, textureWidth, textureHeight);
+        renderContext.putImageData(imageData, (textureWidth - barcodeCanvas.width) / 2, (textureHeight - barcodeCanvas.height) / 2);
 
         const wallTexture = gl.createTexture();
-        const TextureData = staticCtx.getImageData(0, 0, textureWidth, textureHeight);
+        const TextureData = renderContext.getImageData(0, 0, textureWidth, textureHeight);
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, wallTexture);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, TextureData);
@@ -587,7 +587,7 @@
     });
 
     printConsole(
-      'bwip-js ' + bwipjs.VERSION + ' / BWIPP ' + bwipjs.BWIPP.VERSION);
+      'ℹ️ bwip-js ' + bwipjs.VERSION + ' / BWIPP ' + bwipjs.BWIPP.VERSION);
   });
 
   function printConsole(lineString) {
@@ -659,12 +659,12 @@
         textContent = msg;
       }
 
-      printConsole(textContent)
+      printConsole("❌" + textContent)
       return;
     }
 
     function show(ts0, ts1) {
-      printConsole('Barcode rendered in ' + (ts1 - ts0) + ' msecs.');
+      printConsole('ℹ️ Barcode rendered in ' + (ts1 - ts0) + ' msecs.');
     }
   }
 </script>
@@ -771,7 +771,7 @@
     </div>
     <div id="debugInfo" style="display:none;">
       <img id="screenshot" />
-      <canvas id="staticCanvas" width="261" height="165" style="border: 2px solid #000;"></canvas>
+      <canvas id="renderCanvas" width="261" height="165" style="border: 2px solid #000;"></canvas>
       <canvas id="barcodeCanvas" width=1 height=1 style="border:1px solid #fff;visibility:hidden"></canvas>
     </div>
   </div>

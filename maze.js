@@ -495,10 +495,10 @@ var render = function () {
 		if (e.keyCode == 32) {
 			lighting = !lighting;
 			if (!lighting) {
-				printConsole("Lighting disabled")
+				printConsole("💡Lighting disabled")
 			} else {
 
-				printConsole("Lighting enabled")
+				printConsole("💡Lighting enabled")
 			}
 		}
 	}
@@ -605,8 +605,16 @@ var render = function () {
 		canvas.toBlob(function (blob) {
 			const item = new ClipboardItem({ "image/png": blob });
 			document.getElementById('screenshot').src = URL.createObjectURL(blob);
-			navigator.clipboard.write([item]);
-			printConsole("Screenshot saved to Clipboard.")
+			if (navigator.clipboard) {
+				try {
+					navigator.clipboard.write([item]);
+				} catch (err) {
+					printConsole("❌" + err)
+				}
+				printConsole("🖼 Screenshot saved to Clipboard.")
+			} else {
+				printConsole("❌ Screenshots only work on localhost or over HTTPS")
+			}
 		});
 	}
 	requestAnimationFrame(render);

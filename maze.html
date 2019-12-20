@@ -245,8 +245,9 @@
   let consoleContent = "🔥 Welcome to Scandit3D\n  -----------";
   let generateBarcodeScanCnt = 0;
   let generateBarcodeScanLimit = 0;
-  window.capture = false;
-
+  let capture = false;
+  let wallImg = new Image();
+  let mazeRunning = false;
 
   function drawCodeLocation(location, imageSettings) {
     //  codeLocationCanvasContext.clearRect(0, 0, codeLocationCanvasContext.canvas.width, codeLocationCanvasContext.canvas.height);
@@ -276,7 +277,6 @@
     codeLocationCanvasContext.fillStyle = "rgba(192, 27, 27, 0.3)";
     codeLocationCanvasContext.fill();
 
-
     document.getElementById("scanner-container").appendChild(codeLocationCanvasElement);
 
     //codeLocationCanvasElement.classList.add("hide");
@@ -286,11 +286,13 @@
 
     }, 1000);
   }
+
+
   document.addEventListener("keydown", function (e) {
     /* Screenshot */
     if ((window.navigator.platform.match("Mac") ? e.metaKey : e.ctrlKey) && e.keyCode == 83) {
       e.preventDefault();
-      window.capture = true
+      capture = true
     }
     /* enable/disable automatic barcode changes */
     if ((e.keyCode >= 48 && e.keyCode <= 57) || (e.keyCode >= 96 && e.keyCode <= 105)) {
@@ -317,9 +319,11 @@
   }, false);
 
   function openFullscreen() {
-    if (!window.mazeRunning) {
-      window.startMaze();
-      renderBarcode();
+    if (!mazeRunning) {
+      startMaze(function () {
+        printConsole("Maze started");
+        renderBarcode();
+      });
       return;
     }
     var elem = document.querySelector("body");
@@ -341,30 +345,19 @@
   const engineLocation = "https://cdn.jsdelivr.net/npm/scandit-sdk@4.x/build"
 
   function refreshScanSettings(enabledSymbologies) {
-
     const scanSettings = new ScanditSDK.ScanSettings({
       enabledSymbologies: enabledSymbologies,
       codeDuplicateFilter: 0,
       maxNumberOfCodesPerFrame: 10
     });
-
     scanner.applyScanSettings(scanSettings);
   }
 
   ScanditSDK.configure(licenseKey, { engineLocation: engineLocation }).then(() => {
     console.log("ScanditSDK configured")
-
-
-
-
-
-
     scanner = new ScanditSDK.Scanner();
 
-
-
     scanner.on("ready", function () {
-
       var sourceCanvas = document.getElementById("gl-canvas")
       imageSettings = {
         width: sourceCanvas.width,
@@ -373,10 +366,7 @@
       }
 
       scanner.applyImageSettings(imageSettings);
-
       console.log("Scanner Ready");
-
-      let wallImg = new Image();
       let renderCanvas = document.getElementById("renderCanvas");
       wallImg.onload = function () {
         let ctx = renderCanvas.getContext("2d");
@@ -392,12 +382,6 @@
     });
   });
 
-
-
-
-
-</script>
-<script>
   var sourceCanvas
   var numberOfCodesPerFrameElement
 
@@ -405,79 +389,71 @@
 
   var lastBarcode = null
   window.addEventListener("load", function () {
-
-
-
     sourceCanvas = document.getElementById("gl-canvas")
     numberOfCodesPerFrameElement = document.getElementById("numberOfCodesPerFrame")
 
+  })
+  function scanBarcode() {
+    if (scanner.isReady() && !scanner.isBusyProcessing()) {
+      var destCtx = sourceCanvas.getContext('webgl');
+      var inputImageData = new Uint8Array(gl.drawingBufferWidth * gl.drawingBufferHeight * 4);
+      destCtx.readPixels(0, 0, sourceCanvas.width, sourceCanvas.height, gl.RGBA, gl.UNSIGNED_BYTE, inputImageData);
 
-    window.scanBarcode = function () {
+      const w = sourceCanvas.width, h = sourceCanvas.height;
 
+      var inputImageDataRotated = new Uint8ClampedArray(gl.drawingBufferWidth * gl.drawingBufferHeight * 4);
+      Array.from({ length: h },
+        function (val, i) { return inputImageData.slice(i * w * 4, (i + 1) * w * 4) })
+        .forEach(function (val, i) { return inputImageDataRotated.set(val, (h - i - 1) * w * 4) });
 
-      if (scanner.isReady() && !scanner.isBusyProcessing()) {
+      if (imageSettings.width != w || imageSettings.height != h) {
 
+        imageSettings = {
+          width: w,
+          height: h,
+          format: ScanditSDK.ImageSettings.Format.RGBA_8U
+        }
+      }
 
-        var destCtx = sourceCanvas.getContext('webgl');
-        var inputImageData = new Uint8Array(gl.drawingBufferWidth * gl.drawingBufferHeight * 4);
-        destCtx.readPixels(0, 0, sourceCanvas.width, sourceCanvas.height, gl.RGBA, gl.UNSIGNED_BYTE, inputImageData);
+      scanner.applyImageSettings(imageSettings);
+      var dspistol = new Audio("dspistol.wav");
 
-        const w = sourceCanvas.width, h = sourceCanvas.height;
+      scanner.processImage(inputImageDataRotated).then(scanResult => {
+        if (scanResult.barcodes.length > 0 && dspistol) {
+          //dspistol.play();
+        }
+        scanResult.barcodes.forEach(function (barcode) {
+          if (barcode.data != lastBarcode) {
+            lastBarcode = barcode.data;
+            printConsole("⚡️ Scanned Barcode: " + lastBarcode)
 
-        var inputImageDataRotated = new Uint8ClampedArray(gl.drawingBufferWidth * gl.drawingBufferHeight * 4);
-        Array.from({ length: h },
-          function (val, i) { return inputImageData.slice(i * w * 4, (i + 1) * w * 4) })
-          .forEach(function (val, i) { return inputImageDataRotated.set(val, (h - i - 1) * w * 4) });
+          }
 
-        if (imageSettings.width != w || imageSettings.height != h) {
-
-          imageSettings = {
-            width: w,
-            height: h,
-            format: ScanditSDK.ImageSettings.Format.RGBA_8U
+          // Draw new code locations
+          drawCodeLocation(barcode.location, scanResult.imageSettings);
+        });
+        var newScans = scanResult.barcodes.length
+        if (generateBarcodeScanLimit > 0) {
+          generateBarcodeScanCnt += newScans;
+        }
+        if (generateBarcodeScanLimit > 0 && generateBarcodeScanCnt >= generateBarcodeScanLimit) {
+          generateBarcodeScanCnt = 0;
+          element = document.getElementById("symbologySelect");
+          element.selectedIndex = element.selectedIndex + 1 < element.length ? element.selectedIndex + 1 : 0;
+          if ("createEvent" in document) {
+            var evt = document.createEvent("HTMLEvents");
+            evt.initEvent("change", false, true);
+            element.dispatchEvent(evt);
+          }
+          else {
+            element.fireEvent("onchange");
           }
         }
+        numberOfCodesPerFrameElement.value = scanResult.barcodes.length;
+      })
+    };
 
-        scanner.applyImageSettings(imageSettings);
-        var dspistol = new Audio("dspistol.wav");
-
-        scanner.processImage(inputImageDataRotated).then(scanResult => {
-          if (scanResult.barcodes.length > 0 && dspistol) {
-            //dspistol.play();
-          }
-          scanResult.barcodes.forEach(function (barcode) {
-            if (barcode.data != lastBarcode) {
-              lastBarcode = barcode.data;
-              printConsole("⚡️ Scanned Barcode: " + lastBarcode)
-             
-            }
-            
-            // Draw new code locations
-            drawCodeLocation(barcode.location, scanResult.imageSettings);
-          });
-          var newScans =  scanResult.barcodes.length
-          if (generateBarcodeScanLimit > 0) {
-                generateBarcodeScanCnt += newScans;
-              }
-              if (generateBarcodeScanLimit > 0 && generateBarcodeScanCnt >= generateBarcodeScanLimit) {
-                generateBarcodeScanCnt = 0;
-                element = document.getElementById("symbologySelect");
-                element.selectedIndex = element.selectedIndex + 1 < element.length ? element.selectedIndex + 1 : 0;
-                if ("createEvent" in document) {
-                  var evt = document.createEvent("HTMLEvents");
-                  evt.initEvent("change", false, true);
-                  element.dispatchEvent(evt);
-                }
-                else {
-                  element.fireEvent("onchange");
-                }
-              }
-          numberOfCodesPerFrameElement.value = scanResult.barcodes.length;
-        })
-      };
-
-    }
-  })
+  }
 
 
   function swapTexture(symbology) {
@@ -491,33 +467,29 @@
       imageData = barcodeContext.getImageData(0, 0, barcodeCanvas.width, barcodeCanvas.height);
 
 
-      let wallImg = new Image();
       let renderCanvas = document.getElementById("renderCanvas");
-      
+
       function nextPowerOf2(n) { // https://stackoverflow.com/questions/26965171/fast-nearest-power-of-2-in-javascript
         return 1 << 32 - Math.clz32(n);
       }
 
       let textureWidth = nextPowerOf2(Math.max(barcodeCanvas.width * 1.5, barcodeCanvas.height * 1.5));
       let textureHeight = textureWidth;
-      wallImg.onload = function () {
-        renderCanvas.width = textureWidth
-        renderCanvas.height = textureHeight
-        let renderContext = renderCanvas.getContext("2d");
+      renderCanvas.width = textureWidth
+      renderCanvas.height = textureHeight
+      let renderContext = renderCanvas.getContext("2d");
 
 
-        renderContext.drawImage(wallImg, 0, 0, textureWidth, textureHeight);
-        renderContext.putImageData(imageData, (textureWidth - barcodeCanvas.width) / 2, (textureHeight - barcodeCanvas.height) / 2);
+      renderContext.drawImage(wallImg, 0, 0, textureWidth, textureHeight);
+      renderContext.putImageData(imageData, (textureWidth - barcodeCanvas.width) / 2, (textureHeight - barcodeCanvas.height) / 2);
 
-        const wallTexture = gl.createTexture();
-        const TextureData = renderContext.getImageData(0, 0, textureWidth, textureHeight);
-        gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, wallTexture);
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, TextureData);
-        gl.generateMipmap(gl.TEXTURE_2D);
+      const wallTexture = gl.createTexture();
+      const TextureData = renderContext.getImageData(0, 0, textureWidth, textureHeight);
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, wallTexture);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, TextureData);
+      gl.generateMipmap(gl.TEXTURE_2D);
 
-      }
-      wallImg.src = './pic.bmp';
     } catch (e) {
       // `e` may be a string or Error object
     }
@@ -527,7 +499,7 @@
   function getSymbologyMapping() {
     if (!symbologyMapping) {
       var bwipSymbologies = Object.keys(symdesc)
-      var scanditSymbologes = Object.values(ScanditSDK.Barcode.Symbology).filter(function (e) {return typeof e == "string"  })
+      var scanditSymbologes = Object.values(ScanditSDK.Barcode.Symbology).filter(function (e) { return typeof e == "string" })
 
 
       var intersection = bwipSymbologies.filter(function (e) {
@@ -559,7 +531,7 @@
       var missing = scanditSymbologes.filter(function (e) {
         return Object.values(symbologyMapping).indexOf(e) < 0;
       });
-      console.log("WARNING: Symbologies without generator: "+missing.join())
+      console.log("WARNING: Symbologies without generator: " + missing.join())
     }
     return symbologyMapping;
   }
@@ -813,4 +785,5 @@
     </div>
   </div>
 </body>
+
 </html>

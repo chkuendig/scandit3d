@@ -142,9 +142,8 @@ function resizeCanvas(canvas, ctx) {
 	return canvas.width / canvas.height;
 }
 
-window.mazeRunning = false;
-window.startMaze = function () {
-	window.mazeRunning = true;
+startMaze = function (_callback) {
+	mazeRunning = true;
 
 	canvas = document.getElementById("gl-canvas");
 
@@ -262,7 +261,7 @@ window.startMaze = function () {
 									gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 
 									render();
-								};
+									_callback();								};
 								ratImg.src = './rat.png';
 							};
 							openImg.src = './gl.png';
@@ -577,10 +576,10 @@ var render = function () {
 		}
 	}
 
-	window.scanBarcode()
+	scanBarcode()
 
-	if (window.capture) {
-		window.capture = false;
+	if (capture) {
+		capture = false;
 		canvas.toBlob(function (blob) {
 			const item = new ClipboardItem({ "image/png": blob });
 			document.getElementById('screenshot').src = URL.createObjectURL(blob);

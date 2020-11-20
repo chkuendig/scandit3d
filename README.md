@@ -1,11 +1,10 @@
                                   
 
-# Scandit Winter Hackathon 2019 Project.
-
-[![Screenshot](http://***REMOVED***/scandit3d/screenshot-thumb.png)](http://***REMOVED***/scandit3d/screenshot.png)
+# This is a private project and not endorsed by Scandit.
+[![Screenshot](http://scandit3d.kuendig.io/screenshot-thumb.png)](http://scandit3d.kuendig.io/screenshot.png)
 
 ## How to use
-Try it out at http://***REMOVED***/scandit3d/. 
+Try it out at http://scandit3d.kuendig.io/. 
 * Click once in the main area to start it (click a second time to go into fullscreen). 
 * Once the game runs, you can add barcodes via the barcode generator. Selecting a new symbology or pressing enter automatically regenerates the barcode
 
